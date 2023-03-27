@@ -1,0 +1,64 @@
+.biglist ul{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+  .biglist li{
+    position: relative;
+    margin-bottom: 10px;
+  }
+  
+  .biglist .content{
+    border-radius: 5px;
+    padding: 25px;
+    background-color: white;
+  }
+  
+
+  .biglist li:hover .actions{
+    display: flex;
+  }
+  
+  .biglist .actions{
+    display: none;
+    gap: 10px;
+    background-color: white;
+    position: absolute;
+    top: 0;
+    right: 10px;
+    bottom: 0;
+    margin: auto 0;
+    height: 50px;
+    padding: 10px;
+  }
+
+  .biglist .actions button{
+    padding: 7px 12px;
+    font-size: 12px;
+    color: black;
+    background-color: transparent;
+  }
+  .biglist .content.highlight{
+    box-shadow: inset 0px 0px 0px 2px #efc740;
+  }
+
+  .biglist .actions button.highlight{
+  color: #efc740;
+  }
+  
+  .biglist .options{
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+    background-color: black;
+    color: white;
+    border-radius: 5px;
+    padding: 10px;
+  }
+  
+  .biglist li:hover .content{
+    cursor: pointer;
+    background-color: rgb(255, 214, 230);
+  }

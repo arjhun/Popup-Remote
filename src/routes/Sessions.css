@@ -1,0 +1,11 @@
+.sessionInput{
+    margin-bottom: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.sessions .sessionInput input{
+    width: 100%;
+    max-width: 600px;
+    flex-grow: 1;
+}
