@@ -16,8 +16,6 @@ export default function App() {
       setEndPointConnected(status);
     });
 
-    socket.on("playing");
-
     socket.on("connect", () => {
       setConnected(true);
     });
