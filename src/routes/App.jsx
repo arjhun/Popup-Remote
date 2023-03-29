@@ -33,7 +33,7 @@ export default function App() {
       socket.off("connect");
       socket.off("disconnect");
     };
-  }, [socket]);
+  }, []);
 
   return (
     <div className="app">
