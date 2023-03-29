@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import Root from "./routes/Root";
+import App from "./routes/App";
 import ErrorPage from "./routes/ErrorPage";
 import Sessions from "./routes/Sessions";
 import Session, { loader } from "./routes/Session";
@@ -11,7 +11,7 @@ import { SocketContext, socket } from "./contexts/SocketContext";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Root />,
+    element: <App />,
     errorElement: <ErrorPage />,
     children: [
       {

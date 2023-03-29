@@ -1,11 +1,11 @@
 import { React, useContext, useState, useEffect } from "react";
-import "./Root.css";
+import "./App.css";
 import ConnectError from "../components/ConnectError";
 import { Outlet, Link } from "react-router-dom";
 import { SocketContext } from "../contexts/SocketContext";
 import RemoteConfig from "../config/Config";
 
-export default function Root() {
+export default function App() {
   const socket = useContext(SocketContext);
   const [connected, setConnected] = useState(socket.connected);
   const [endPointConnected, setEndPointConnected] = useState(false);
