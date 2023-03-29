@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import { useLoaderData } from "react-router-dom";
 import "./Session.css";
-import { SocketContext, socket } from "../contexts/SocketContext";
+import { SocketContext, socket } from "../contexts/SocketProvider";
 
 import BigList from "../components/BigList";
 import BigListItem from "../components/BigListItem";

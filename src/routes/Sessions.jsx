@@ -5,7 +5,7 @@ import BigListActions, {
   BigListActionButton,
 } from "../components/BigListActions";
 import LoadingButton from "../components/LoadingButton";
-import { socket } from "../contexts/SocketContext";
+import { socket } from "../contexts/SocketProvider";
 import "./Sessions.css";
 import RemoteConfig from "../config/Config";
 import { Link } from "react-router-dom";

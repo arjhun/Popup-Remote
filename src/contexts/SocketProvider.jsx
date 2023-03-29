@@ -8,4 +8,10 @@ export const socket = io.connect(RemoteConfig.SERVER_URL, {
   },
 });
 
-export const SocketContext = React.createContext();
+export const SocketContext = React.createContext(null);
+
+export function SocketProvider({ children }) {
+  return (
+    <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
+  );
+}

@@ -6,7 +6,7 @@ import ErrorPage from "./routes/ErrorPage";
 import Sessions from "./routes/Sessions";
 import Session, { loader } from "./routes/Session";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { SocketContext, socket } from "./contexts/SocketContext";
+import { SocketProvider } from "./contexts/SocketProvider";
 
 const router = createBrowserRouter([
   {
@@ -33,8 +33,8 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
   <React.StrictMode>
-    <SocketContext.Provider value={socket}>
+    <SocketProvider>
       <RouterProvider router={router} />
-    </SocketContext.Provider>
+    </SocketProvider>
   </React.StrictMode>
 );
