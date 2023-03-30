@@ -1,5 +1,6 @@
 import { React, useEffect, useRef, useState } from "react";
 import BigList from "../components/BigList";
+import Page from "../components/Page";
 import BigListItem from "../components/BigListItem";
 import BigListActions, {
   BigListActionButton,
@@ -7,7 +8,6 @@ import BigListActions, {
 import LoadingButton from "../components/LoadingButton";
 import { socket } from "../contexts/SocketProvider";
 import "./Sessions.css";
-import RemoteConfig from "../config/Config";
 import { Link } from "react-router-dom";
 
 export default function Sessions() {
@@ -17,7 +17,6 @@ export default function Sessions() {
   const [filtering, setFiltering] = useState(false);
 
   useEffect(() => {
-    document.title = RemoteConfig.APP_NAME + " - Sessions";
     socket.emit("getSessions", "", (data) => {
       setSessionList(data);
     });
@@ -105,49 +104,51 @@ export default function Sessions() {
   }
 
   return (
-    <div className="sessions">
-      <div className="sessionInput">
-        <input ref={newSessionRef} placeholder="Session name"></input>
-        <LoadingButton className="addButton" doAction={handleAddSession}>
-          {!currentSession ? "Add" : "Edit Session"}
-        </LoadingButton>
-        {currentSession && (
-          <button className="cancelButton" onClick={clearInput}>
-            Cancel
-          </button>
-        )}
+    <Page title="sessions">
+      <div className="sessions">
+        <div className="sessionInput">
+          <input ref={newSessionRef} placeholder="Session name"></input>
+          <LoadingButton className="addButton" doAction={handleAddSession}>
+            {!currentSession ? "Add" : "Edit Session"}
+          </LoadingButton>
+          {currentSession && (
+            <button className="cancelButton" onClick={clearInput}>
+              Cancel
+            </button>
+          )}
+        </div>
+        <BigList
+          filterLabel="Hide empty"
+          filterState={setFiltering}
+          noItemMessage="No Questions yet!"
+        >
+          {sessionList.map((session) => (
+            <BigListItem
+              key={session._id}
+              shouldFilter={filtering}
+              filterOperation={() => session.questions.length === 0}
+              actions={
+                <BigListActions>
+                  <BigListActionButton
+                    icon="fa-solid fa-edit"
+                    onClick={() => handleEditSession(session)}
+                  />
+                  <BigListActionButton
+                    icon="fa-solid fa-trash"
+                    onClick={() => handleDelSession(session)}
+                  />
+                </BigListActions>
+              }
+              content={
+                <Link to={`session/${session._id}`}>
+                  <i className="fa-solid fa-calendar"></i>
+                  {` ${session.title} (${session.questions.length})`}
+                </Link>
+              }
+            />
+          ))}
+        </BigList>
       </div>
-      <BigList
-        filterLabel="Hide empty"
-        filterState={setFiltering}
-        noItemMessage="No Questions yet!"
-      >
-        {sessionList.map((session) => (
-          <BigListItem
-            key={session._id}
-            shouldFilter={filtering}
-            filterOperation={() => session.questions.length === 0}
-            actions={
-              <BigListActions>
-                <BigListActionButton
-                  icon="fa-solid fa-edit"
-                  onClick={() => handleEditSession(session)}
-                />
-                <BigListActionButton
-                  icon="fa-solid fa-trash"
-                  onClick={() => handleDelSession(session)}
-                />
-              </BigListActions>
-            }
-            content={
-              <Link to={`session/${session._id}`}>
-                <i className="fa-solid fa-calendar"></i>
-                {` ${session.title} (${session.questions.length})`}
-              </Link>
-            }
-          />
-        ))}
-      </BigList>
-    </div>
+    </Page>
   );
 }

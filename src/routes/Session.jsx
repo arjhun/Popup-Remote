@@ -8,6 +8,7 @@ import BigListItem from "../components/BigListItem";
 import BigListActions, {
   BigListActionButton,
 } from "../components/BigListActions";
+import Page from "../components/Page";
 
 export async function loader({ params }) {
   let session = await new Promise((resolve) => {
@@ -162,86 +163,88 @@ export default function Session() {
   if (isSending) buttonText = <i className="fa-solid fa-star"></i>;
 
   return (
-    <div className="session">
-      <header className="session-header">
-        <h1>{session.title}</h1>
-        <p>
-          <strong>Created:</strong>{" "}
-          {new Date(session.createdAt).toLocaleString()} <br />
-          <strong>Total Questions:</strong> {questions.length} <br />
-        </p>
-      </header>
-      <div className="remoteInputPanel">
-        <section>
-          <h2>Remote:</h2>
-          <button onClick={() => handleHideQuestion()}>Hide Popup</button>
-          <button onClick={(e) => handleShowQuestion(lastQuestion)}>
-            Repeat Last
-          </button>
-        </section>
-        <section>
-          <h2>{currentQuestion ? "Edit" : "Create"} a popup:</h2>
-          <textarea ref={newQuestionRef} cols="60" rows="10"></textarea>
-          <br />
-          <button
-            className="addButton"
-            disabled={isSending}
-            onClick={handleAddQuestion}
-          >
-            {buttonText}
-          </button>
-          {currentQuestion && (
-            <button onClick={() => resetInput()} className="cancelButton">
-              cancel
+    <Page title={session.title}>
+      <div className="session">
+        <header className="session-header">
+          <h1>{session.title}</h1>
+          <p>
+            <strong>Created:</strong>{" "}
+            {new Date(session.createdAt).toLocaleString()} <br />
+            <strong>Total Questions:</strong> {questions.length} <br />
+          </p>
+        </header>
+        <div className="remoteInputPanel">
+          <section>
+            <h2>Remote:</h2>
+            <button onClick={() => handleHideQuestion()}>Hide Popup</button>
+            <button onClick={(e) => handleShowQuestion(lastQuestion)}>
+              Repeat Last
             </button>
-          )}
-        </section>
+          </section>
+          <section>
+            <h2>{currentQuestion ? "Edit" : "Create"} a popup:</h2>
+            <textarea ref={newQuestionRef} cols="60" rows="10"></textarea>
+            <br />
+            <button
+              className="addButton"
+              disabled={isSending}
+              onClick={handleAddQuestion}
+            >
+              {buttonText}
+            </button>
+            {currentQuestion && (
+              <button onClick={() => resetInput()} className="cancelButton">
+                cancel
+              </button>
+            )}
+          </section>
+        </div>
+        <div className="remoteListPanel">
+          <BigList
+            filterLabel={"Favorites"}
+            filterState={setFiltering}
+            noItemMessage="No Questions yet!"
+          >
+            {questions.map((question) => (
+              <BigListItem
+                key={question._id}
+                shouldFilter={filtering}
+                filterOperation={() => !question.fav}
+                highlight={question.fav}
+                selected={
+                  playingQuestion ? question._id === playingQuestion._id : false
+                }
+                handleClick={() => handleShowQuestion(question)}
+                content={question.content}
+                actions={
+                  <BigListActions>
+                    <BigListActionButton
+                      icon="fa-solid fa-star"
+                      onClick={() => handleFavQuestion(question)}
+                    />
+                    <BigListActionButton
+                      icon="fa-solid fa-edit"
+                      onClick={() => handleEditQuestion(question)}
+                    />
+                    <BigListActionButton
+                      icon="fa-solid fa-trash"
+                      onClick={() => handleDelQuestion(question)}
+                    />
+                    <BigListActionButton
+                      icon="fa-solid fa-arrow-up"
+                      onClick={() => handleReorderQuestion(question, -1)}
+                    />
+                    <BigListActionButton
+                      icon="fa-solid fa-arrow-down"
+                      onClick={() => handleReorderQuestion(question, +1)}
+                    />
+                  </BigListActions>
+                }
+              />
+            ))}
+          </BigList>
+        </div>
       </div>
-      <div className="remoteListPanel">
-        <BigList
-          filterLabel={"Favorites"}
-          filterState={setFiltering}
-          noItemMessage="No Questions yet!"
-        >
-          {questions.map((question) => (
-            <BigListItem
-              key={question._id}
-              shouldFilter={filtering}
-              filterOperation={() => !question.fav}
-              highlight={question.fav}
-              selected={
-                playingQuestion ? question._id === playingQuestion._id : false
-              }
-              handleClick={() => handleShowQuestion(question)}
-              content={question.content}
-              actions={
-                <BigListActions>
-                  <BigListActionButton
-                    icon="fa-solid fa-star"
-                    onClick={() => handleFavQuestion(question)}
-                  />
-                  <BigListActionButton
-                    icon="fa-solid fa-edit"
-                    onClick={() => handleEditQuestion(question)}
-                  />
-                  <BigListActionButton
-                    icon="fa-solid fa-trash"
-                    onClick={() => handleDelQuestion(question)}
-                  />
-                  <BigListActionButton
-                    icon="fa-solid fa-arrow-up"
-                    onClick={() => handleReorderQuestion(question, -1)}
-                  />
-                  <BigListActionButton
-                    icon="fa-solid fa-arrow-down"
-                    onClick={() => handleReorderQuestion(question, +1)}
-                  />
-                </BigListActions>
-              }
-            />
-          ))}
-        </BigList>
-      </div>
-    </div>
+    </Page>
   );
 }
