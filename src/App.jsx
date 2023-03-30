@@ -1,9 +1,9 @@
 import { React, useContext, useState, useEffect } from "react";
 import "./App.css";
-import ConnectError from "../components/ConnectError";
+import ConnectError from "./components/ConnectError";
 import { Outlet, Link } from "react-router-dom";
-import { SocketContext } from "../contexts/SocketProvider";
-import RemoteConfig from "../config/Config";
+import { SocketContext } from "./contexts/SocketProvider";
+import RemoteConfig from "./config/Config";
 
 export default function App() {
   const socket = useContext(SocketContext);

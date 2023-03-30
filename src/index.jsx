@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import App from "./routes/App";
+import App from "./App";
 import ErrorPage from "./routes/ErrorPage";
 import Sessions from "./routes/Sessions";
 import Session from "./routes/Session";
