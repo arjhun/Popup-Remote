@@ -10,20 +10,6 @@ import BigListActions, {
 } from "../components/BigListActions";
 import Page from "../components/Page";
 
-export async function loader({ params }) {
-  let session = await new Promise((resolve) => {
-    socket.emit("getSession", params.currentSessionId, (data) => {
-      resolve(data);
-    });
-  });
-  if (session == null)
-    throw new Response("Not Found", {
-      status: 404,
-      statusText: "Session not found!",
-    });
-  return session;
-}
-
 export default function Session() {
   const session = useLoaderData();
   const socket = useContext(SocketContext);
@@ -37,7 +23,7 @@ export default function Session() {
 
   useEffect(() => {
     socket.emit("getQuestions", session._id, (data) => {
-      sortQuestions(data);
+      sortByOrder(data);
       setQuestions(data);
     });
 
@@ -79,7 +65,7 @@ export default function Session() {
     setQuestions((oldArray) => oldArray.filter((q) => q._id !== id));
   }
 
-  function sortQuestions(toSort) {
+  function sortByOrder(toSort) {
     toSort.sort((a, b) => {
       if (a.order > b.order) return 1;
       if (a.order < b.order) return -1;
@@ -119,7 +105,7 @@ export default function Session() {
     newArray[currIndex].order = switchIndex;
     newArray[switchIndex].order = currIndex;
     let reducedArray = newArray.map((e) => ({ _id: e._id, order: e.order }));
-    sortQuestions(newArray);
+    sortByOrder(newArray);
     socket.emit("sortQuestions", session._id, reducedArray, (success) => {
       if (success) setQuestions(newArray);
     });
