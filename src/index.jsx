@@ -8,6 +8,7 @@ import Session from "./routes/Session";
 import { loader as sessionLoader } from "./Loaders/sessionLoader";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { SocketProvider } from "./contexts/SocketProvider";
+import Login from "./routes/Login";
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,7 @@ const router = createBrowserRouter([
             element: <Session />,
             loader: sessionLoader,
           },
+          { path: "/login", element: <Login /> },
         ],
       },
     ],
