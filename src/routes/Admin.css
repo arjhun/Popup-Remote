@@ -1,0 +1,35 @@
+.users {
+    overflow-x: auto
+}
+
+.users table {
+    border-spacing: 0px;
+    width: 100%;
+    background-color: white;
+    padding: 20px;
+    border-radius: 20px;
+}
+
+.users thead {
+    font-weight: bold;
+}
+
+.users thead td {
+    border-bottom: 3px solid rgb(255, 212, 237);
+}
+
+.users td {
+    padding: 10px;
+}
+
+
+
+.users tbody tr:not(:last-child) td {
+    border-bottom: 1px solid rgb(255, 212, 237);
+}
+
+.users .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}

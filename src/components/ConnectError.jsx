@@ -3,11 +3,10 @@ import RemoteConfig from "../config/Config";
 
 import "./ConnectError.css";
 
-export default function ConnectError() {
+export default function ConnectError({ error }) {
   return (
     <div className="connectError">
-      No Connection @:{RemoteConfig.SERVER_URL},{" "}
-      <span className="blink">Reconnecting...</span>
+      No Connection @:{RemoteConfig.SERVER_URL} <small>({error})</small>
     </div>
   );
 }

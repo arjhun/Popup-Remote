@@ -2,3 +2,6 @@
 .btn.loading{background-color: blue} */
 
 .btn.done{background-color: rgb(24, 183, 66)}
+.btn.canceled {
+    background-color: rgb(183, 24, 24)
+}

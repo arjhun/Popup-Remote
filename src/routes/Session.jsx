@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import { useLoaderData } from "react-router-dom";
 import "./Session.css";
-import { SocketContext, socket } from "../contexts/SocketProvider";
+import { socket } from "../contexts/SocketProvider";
 
 import BigList from "../components/BigList";
 import BigListItem from "../components/BigListItem";
@@ -10,9 +10,22 @@ import BigListActions, {
 } from "../components/BigListActions";
 import Page from "../components/Page";
 
+export async function loader({ params }) {
+  let session = await new Promise((resolve) => {
+    socket.emit("getSession", params.currentSessionId, (data) => {
+      resolve(data);
+    });
+  });
+  if (session == null)
+    throw new Response("Not Found", {
+      status: 404,
+      statusText: "Session not found!",
+    });
+  return session;
+}
+
 export default function Session() {
   const session = useLoaderData();
-  const socket = useContext(SocketContext);
   const [filtering, setFiltering] = useState();
   const [playingQuestion, setPlayingquestion] = useState();
   const [lastQuestion, setLastQuestion] = useState(null);

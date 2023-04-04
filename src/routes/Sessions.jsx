@@ -8,19 +8,24 @@ import BigListActions, {
 import LoadingButton from "../components/LoadingButton";
 import { socket } from "../contexts/SocketProvider";
 import "./Sessions.css";
-import { Link } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
+
+export async function loader() {
+  const sessions = await new Promise((resolve, reject) => {
+    socket.emit("getSessions", "", (data) => {
+      resolve(data);
+    });
+  });
+  return sessions;
+}
 
 export default function Sessions() {
-  const [sessionList, setSessionList] = useState([]);
+  const [sessionList, setSessionList] = useState(useLoaderData());
   const newSessionRef = useRef(null);
   const [currentSession, setCurrentSession] = useState();
   const [filtering, setFiltering] = useState(false);
 
   useEffect(() => {
-    socket.emit("getSessions", "", (data) => {
-      setSessionList(data);
-    });
-
     socket.on("addSession", (data) => {
       setSessionList((oldArray) => {
         const i = oldArray.findIndex((s) => s._id === data._id);
@@ -107,7 +112,11 @@ export default function Sessions() {
     <Page title="sessions">
       <div className="sessions">
         <div className="sessionInput">
-          <input ref={newSessionRef} placeholder="Session name"></input>
+          <input
+            type="text"
+            ref={newSessionRef}
+            placeholder="Session name"
+          ></input>
           <LoadingButton className="addButton" doAction={handleAddSession}>
             {!currentSession ? "Add" : "Edit Session"}
           </LoadingButton>

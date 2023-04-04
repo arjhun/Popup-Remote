@@ -13,23 +13,23 @@ export default function BigList(props) {
   }
 
   return (
-    <div className="biglist questionList">
-      <div className="options">
-        {
+    <div className="biglist">
+      {filterLabel && (
+        <div className="options">
           <>
             <span>
               <strong>Filter:</strong>
             </span>
             <label htmlFor="filter">{filterLabel}</label>
             <input
-              name="favFilter"
-              id="favFilter"
+              name="filter"
+              id="filter"
               type="checkbox"
               onChange={handleFilter}
             />
           </>
-        }
-      </div>
+        </div>
+      )}
       <ul>
         {props.children.length > 0 ? (
           props.children
