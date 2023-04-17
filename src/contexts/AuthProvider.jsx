@@ -1,8 +1,30 @@
 import React from "react";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSocket } from "../hooks/useSocket";
-import { useLocalStorage } from "../hooks/useLocalStorage";
+import { useLocalStorage, getUser } from "../hooks/useLocalStorage";
+import axios from "axios";
+import RemoteConfig from "../config/Config";
+
+axios.defaults.baseURL = RemoteConfig.SERVER_URL;
+
+axios.interceptors.request.use((config) => {
+  let token = getUser("user", null).token;
+
+  if (token) {
+    config.headers["Authorization"] = "Bearer " + token;
+  }
+  config.headers["Content-Type"] = "application/json";
+  return config;
+});
+
+axios.interceptors.response.use(
+  function (response) {
+    return response;
+  },
+  function (error) {
+    return Promise.reject(error);
+  }
+);
 
 export const AuthContext = React.createContext(null);
 

@@ -1,0 +1,41 @@
+.userform {
+
+    width: 100%;
+}
+
+.userform .nameWrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.userform .nameWrapperSingle {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.userform form {
+    margin-bottom: 10px;
+}
+
+.userform input {
+    display: block;
+    width: 100%;
+    margin: 10px 0px;
+}
+
+.userform-content {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+.userform .errorLabel {
+    color: red;
+}
+
+.userform label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}

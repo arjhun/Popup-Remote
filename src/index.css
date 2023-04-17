@@ -79,3 +79,6 @@ background-color: green;
     opacity: 0;
   }
 }
+form input:invalid {
+  border: 1px solid red;
+}

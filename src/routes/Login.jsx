@@ -5,7 +5,6 @@ import RemoteConfig from "../config/Config";
 import "./Login.css";
 import { useAuth } from "../hooks/useAuth";
 import { useSocket } from "../hooks/useSocket";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import LoadingButton from "../components/LoadingButton";
 import { toast } from "react-toastify";
@@ -16,7 +15,6 @@ export default function Login() {
   const password = useRef();
   const { user, login } = useAuth();
   const socket = useSocket();
-  const navigate = useNavigate();
 
   function handleChange() {}
 
@@ -41,20 +39,15 @@ export default function Login() {
 
       fetch(RemoteConfig.SERVER_URL + "/authenticate", requestOptions)
         .then((response) => {
-          console.log(response);
           if (!response.ok) {
             throw Error(response.statusText);
           }
           return response.json();
         })
         .then((result) => {
-          console.log(socket);
+          socket.auth.token = result.token;
           if (!socket.connected) {
-            console.log("connecting");
-            socket.auth.token = result.token;
             socket.connect();
-          } else {
-            console.log(socket);
           }
           login(result);
           resolve();

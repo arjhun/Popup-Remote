@@ -1,31 +1,25 @@
 import { useState } from "react";
 
-export const getUser = (keyName, defaultValue) => {
+export const getUser = () => {
   try {
-    const value = window.localStorage.getItem(keyName);
+    const value = window.localStorage.getItem("user");
     if (value) {
       return JSON.parse(value);
     } else {
-      window.localStorage.setItem(keyName, JSON.stringify(defaultValue));
-      return defaultValue;
+      window.localStorage.setItem(keyName, JSON.stringify(null));
+      return null;
     }
   } catch (err) {
-    return defaultValue;
+    return null;
   }
 };
 
-export default function tokenExpired(token = {}) {
-  if (Date.now() >= exp * 1000) {
-    return false;
-  }
-}
-
-export const useLocalStorage = (keyName, defaultValue) => {
-  const user = getUser(keyName, defaultValue);
+export const useLocalStorage = () => {
+  const user = getUser();
   const [storedValue, setStoredValue] = useState(user);
   const setValue = (newValue) => {
     try {
-      window.localStorage.setItem(keyName, JSON.stringify(newValue));
+      window.localStorage.setItem("user", JSON.stringify(newValue));
     } catch (err) {}
     setStoredValue(newValue);
   };

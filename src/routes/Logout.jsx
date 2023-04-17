@@ -5,7 +5,7 @@ import { socket } from "../contexts/SocketProvider";
 export default function Logout() {
   const { logout } = useAuth();
   useEffect(() => {
-    //socket.close();
+    socket.close();
     logout();
   });
 

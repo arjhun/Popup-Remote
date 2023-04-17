@@ -9,156 +9,160 @@ import BigListActions, {
   BigListActionButton,
 } from "../components/BigListActions";
 import Page from "../components/Page";
+import axios from "axios";
 
 export async function loader({ params }) {
-  let session = await new Promise((resolve) => {
-    socket.emit("getSession", params.currentSessionId, (data) => {
-      resolve(data);
-    });
+  let session = await new Promise((resolve, reject) => {
+    axios
+      .request({
+        method: "get",
+        url: `/sessions/${params.currentSessionId}`,
+      })
+      .then((response) => {
+        sortByOrder(response.data.popups);
+        resolve(response.data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
   });
-  if (session == null)
-    throw new Response("Not Found", {
-      status: 404,
-      statusText: "Session not found!",
-    });
   return session;
 }
 
 export default function Session() {
   const session = useLoaderData();
   const [filtering, setFiltering] = useState();
-  const [playingQuestion, setPlayingquestion] = useState();
-  const [lastQuestion, setLastQuestion] = useState(null);
+  const [playingPopup, setPlayingPopup] = useState();
+  const lastPopup = useRef(null);
   const [isSending, setIsSending] = useState(false);
-  const [currentQuestion, setCurrentQuestion] = useState(undefined);
-  const [questions, setQuestions] = useState([]);
-  const newQuestionRef = useRef();
+  const [currentPopup, setCurrentPopup] = useState();
+  const [popups, setPopups] = useState(session.popups);
+  const newPopupRef = useRef();
 
   useEffect(() => {
-    socket.emit("getQuestions", session._id, (data) => {
-      sortByOrder(data);
-      setQuestions(data);
+    socket.on("deletePopup", (sessionId, popupId) => {
+      if (sessionId !== session._id) return;
+      removePopup(popupId);
     });
 
-    socket.on("removeQuestion", (sessionId, id) => {
+    socket.on("updatePopup", (sessionId, updatedPopup) => {
       if (sessionId !== session._id) return;
-      removeQuestion(id);
-    });
-
-    socket.on("updateQuestion", (sessionId, question) => {
-      if (sessionId !== session._id) return;
-      setQuestions((oldArray) =>
-        oldArray.map((q) => {
-          if (q._id === question._id) {
-            return { ...q, content: question.content, fav: question.fav };
+      setPopups((oldArray) =>
+        oldArray.map((popup) => {
+          if (popup._id === updatedPopup._id) {
+            return {
+              ...popup,
+              content: updatedPopup.content,
+              fav: updatedPopup.fav,
+            };
           }
-          return q;
+          return popup;
         })
       );
     });
 
-    socket.on("addQuestion", (sessionId, question) => {
+    socket.on("addPopup", (sessionId, newPopup) => {
+      console.log("new popup");
       if (sessionId !== session._id) return;
-      setQuestions((oldArray) => [...oldArray, question]);
+      setPopups((oldArray) => [...oldArray, newPopup]);
     });
 
-    socket.on("questionStarted", (question) => {
-      setPlayingquestion(question);
+    socket.on("popupStarted", (popup) => {
+      setPlayingPopup(popup);
     });
 
     return () => {
-      socket.off("updateQuestion");
-      socket.off("removeQuestion");
-      socket.off("addQuestion");
-      socket.off("questionStarted");
+      socket.off("updatePopup");
+      socket.off("deletePopup");
+      socket.off("addPopup");
+      socket.off("popupStarted");
     };
   }, [socket, session._id]);
 
-  function removeQuestion(id) {
-    setQuestions((oldArray) => oldArray.filter((q) => q._id !== id));
-  }
-
-  function sortByOrder(toSort) {
-    toSort.sort((a, b) => {
-      if (a.order > b.order) return 1;
-      if (a.order < b.order) return -1;
-      return 0;
-    });
+  function removePopup(id) {
+    setPopups((oldArray) => oldArray.filter((q) => q._id !== id));
   }
 
   function resetInput() {
-    newQuestionRef.current.value = null;
-    setCurrentQuestion(undefined);
+    newPopupRef.current.value = null;
+    setCurrentPopup(undefined);
   }
 
-  function handleAddQuestion(e) {
-    const questionContent = newQuestionRef.current.value;
-    if (!questionContent) return;
-    let newQuestion = !currentQuestion
-      ? { _id: undefined, content: questionContent }
-      : { ...currentQuestion, content: questionContent };
+  function handleAddPopup() {
+    const popupContent = newPopupRef.current.value;
+    if (!popupContent) return;
+    const popup = { content: popupContent };
     setIsSending(true);
-    socket.emit("updateQuestion", session._id, newQuestion, (succes) => {
-      if (succes) {
-        resetInput();
-        setIsSending(false);
-      }
-    });
+    if (currentPopup) {
+      socket.emit(
+        "updatePopup",
+        session._id,
+        { ...currentPopup, content: popupContent },
+        (succes) => {
+          if (succes) {
+            resetInput();
+            setIsSending(false);
+          }
+        }
+      );
+    } else {
+      socket.emit("addPopup", session._id, popup, (succes) => {
+        if (succes) {
+          resetInput();
+          setIsSending(false);
+        }
+      });
+    }
   }
 
-  function handleReorderQuestion(question, incr) {
-    let newArray = [...questions];
+  function handleReorderPopup(popup, incr) {
+    let newArray = [...popups];
 
     newArray.forEach((element, i) => {
       element.order = i;
     });
-    let currIndex = newArray.indexOf(question);
+    let currIndex = newArray.indexOf(popup);
     let switchIndex = currIndex + incr;
     if (switchIndex < 0 || switchIndex > newArray.length - 1) return;
     newArray[currIndex].order = switchIndex;
     newArray[switchIndex].order = currIndex;
     let reducedArray = newArray.map((e) => ({ _id: e._id, order: e.order }));
     sortByOrder(newArray);
-    socket.emit("sortQuestions", session._id, reducedArray, (success) => {
-      if (success) setQuestions(newArray);
+    socket.emit("sortPopups", session._id, reducedArray, (success) => {
+      if (success) setPopups(newArray);
     });
   }
 
-  function handleEditQuestion(question) {
-    setCurrentQuestion(question);
-    newQuestionRef.current.focus();
-    newQuestionRef.current.value = question.content;
+  function handleEditPopup(popup) {
+    setCurrentPopup(popup);
+    newPopupRef.current.focus();
+    newPopupRef.current.value = popup.content;
   }
 
-  function handleDelQuestion(question) {
+  function handleDelPopup(popup) {
     if (!window.confirm("Are you sure?")) return;
-    socket.emit("deleteQuestion", session._id, question._id, (success) => {
-      if (success) removeQuestion(question._id);
+    socket.emit("deletePopup", session._id, popup._id, (success) => {
+      if (success) removePopup(popup._id);
     });
   }
 
-  function handleShowQuestion(question) {
-    if (playingQuestion && question._id === playingQuestion._id) return;
-    setLastQuestion(question);
-    socket.emit("showQuestion", question);
+  function handleShowPopup(popup) {
+    if (playingPopup && popup._id === playingPopup._id) return;
+    lastPopup.current = popup;
+    socket.emit("showPopup", popup);
   }
 
-  function handleFavQuestion(question) {
-    let transferQuestion = { ...question };
-    transferQuestion.fav = !question.fav;
-    socket.emit(
-      "updateQuestion",
-      session._id,
-      transferQuestion,
-      (success) => {}
-    );
+  function handleFavPopup(popup) {
+    let transferPopup = { ...popup };
+    transferPopup.fav = !popup.fav;
+    socket.emit("updatePopup", session._id, transferPopup, (success) => {});
   }
 
-  function handleHideQuestion() {
+  function handleHidePopup() {
     socket.emit("hide");
   }
 
-  let buttonText = !currentQuestion ? "Add" : "Edit";
+  let buttonText = !currentPopup ? "Add" : "Edit";
   if (isSending) buttonText = <i className="fa-solid fa-star"></i>;
 
   return (
@@ -169,29 +173,31 @@ export default function Session() {
           <p>
             <strong>Created:</strong>{" "}
             {new Date(session.createdAt).toLocaleString()} <br />
-            <strong>Total Questions:</strong> {questions.length} <br />
+            <strong>Updated:</strong>{" "}
+            {new Date(session.updatedAt).toLocaleString()} <br />
+            <strong>Total Popups:</strong> {popups.length} <br />
           </p>
         </header>
         <div className="remoteInputPanel">
           <section>
             <h2>Remote:</h2>
-            <button onClick={() => handleHideQuestion()}>Hide Popup</button>
-            <button onClick={(e) => handleShowQuestion(lastQuestion)}>
+            <button onClick={() => handleHidePopup()}>Hide Popup</button>
+            <button onClick={(e) => handleShowPopup(lastPopup.current)}>
               Repeat Last
             </button>
           </section>
           <section>
-            <h2>{currentQuestion ? "Edit" : "Create"} a popup:</h2>
-            <textarea ref={newQuestionRef} cols="60" rows="10"></textarea>
+            <h2>{currentPopup ? "Edit" : "Create"} a popup:</h2>
+            <textarea ref={newPopupRef} cols="60" rows="10"></textarea>
             <br />
             <button
               className="addButton"
               disabled={isSending}
-              onClick={handleAddQuestion}
+              onClick={handleAddPopup}
             >
               {buttonText}
             </button>
-            {currentQuestion && (
+            {currentPopup && (
               <button onClick={() => resetInput()} className="cancelButton">
                 cancel
               </button>
@@ -202,40 +208,38 @@ export default function Session() {
           <BigList
             filterLabel={"Favorites"}
             filterState={setFiltering}
-            noItemMessage="No Questions yet!"
+            noItemMessage="No Popups yet!"
           >
-            {questions.map((question) => (
+            {popups.map((popup) => (
               <BigListItem
-                key={question._id}
+                key={popup._id}
                 shouldFilter={filtering}
-                filterOperation={() => !question.fav}
-                highlight={question.fav}
-                selected={
-                  playingQuestion ? question._id === playingQuestion._id : false
-                }
-                handleClick={() => handleShowQuestion(question)}
-                content={question.content}
+                filterOperation={() => !popup.fav}
+                highlight={popup.fav}
+                selected={playingPopup ? popup._id === playingPopup._id : false}
+                handleClick={() => handleShowPopup(popup)}
+                content={popup.content}
                 actions={
                   <BigListActions>
                     <BigListActionButton
                       icon="fa-solid fa-star"
-                      onClick={() => handleFavQuestion(question)}
+                      onClick={() => handleFavPopup(popup)}
                     />
                     <BigListActionButton
                       icon="fa-solid fa-edit"
-                      onClick={() => handleEditQuestion(question)}
+                      onClick={() => handleEditPopup(popup)}
                     />
                     <BigListActionButton
                       icon="fa-solid fa-trash"
-                      onClick={() => handleDelQuestion(question)}
+                      onClick={() => handleDelPopup(popup)}
                     />
                     <BigListActionButton
                       icon="fa-solid fa-arrow-up"
-                      onClick={() => handleReorderQuestion(question, -1)}
+                      onClick={() => handleReorderPopup(popup, -1)}
                     />
                     <BigListActionButton
                       icon="fa-solid fa-arrow-down"
-                      onClick={() => handleReorderQuestion(question, +1)}
+                      onClick={() => handleReorderPopup(popup, +1)}
                     />
                   </BigListActions>
                 }
@@ -246,4 +250,12 @@ export default function Session() {
       </div>
     </Page>
   );
+}
+
+function sortByOrder(toSort) {
+  toSort.sort((a, b) => {
+    if (a.order > b.order) return 1;
+    if (a.order < b.order) return -1;
+    return 0;
+  });
 }

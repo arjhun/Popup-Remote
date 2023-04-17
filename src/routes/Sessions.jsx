@@ -9,12 +9,21 @@ import LoadingButton from "../components/LoadingButton";
 import { socket } from "../contexts/SocketProvider";
 import "./Sessions.css";
 import { Link, useLoaderData } from "react-router-dom";
+import axios from "axios";
 
 export async function loader() {
-  const sessions = await new Promise((resolve, reject) => {
-    socket.emit("getSessions", "", (data) => {
-      resolve(data);
-    });
+  let sessions = await new Promise((resolve, reject) => {
+    axios
+      .request({
+        method: "get",
+        url: `/sessions`,
+      })
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
   });
   return sessions;
 }
@@ -151,7 +160,7 @@ export default function Sessions() {
               content={
                 <Link to={`session/${session._id}`}>
                   <i className="fa-solid fa-calendar"></i>
-                  {` ${session.title} (${session.questions.length})`}
+                  {` ${session.title} (${session.popupCount})`}
                 </Link>
               }
             />

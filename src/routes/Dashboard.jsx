@@ -3,22 +3,30 @@ import "../App.css";
 import { Outlet } from "react-router-dom";
 import Menu from "./Menu";
 import { AuthProvider } from "../contexts/AuthProvider";
-import { SocketProvider } from "../contexts/SocketProvider";
-import { ProtectedRoute } from "./ProtectedRoute";
+import { ToastContainer } from "react-toastify";
 
 export default function Dashboard() {
   return (
     <AuthProvider>
-      <SocketProvider>
-        <ProtectedRoute>
-          <div className="app">
-            <Menu />
-            <div className="wrapper">
-              <Outlet />
-            </div>
-          </div>
-        </ProtectedRoute>
-      </SocketProvider>
+      <div className="app">
+        <Menu />
+        <div className="wrapper">
+          <Outlet />
+        </div>
+      </div>
+
+      <ToastContainer
+        position="bottom-left"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </AuthProvider>
   );
 }

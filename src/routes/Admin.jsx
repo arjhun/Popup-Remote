@@ -1,25 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useLoaderData, Link } from "react-router-dom";
 import Page from "../components/Page";
-import BigList from "../components/BigList";
-import BigListItem from "../components/BigListItem";
-import BigListActions from "../components/BigListActions";
-import { BigListActionButton } from "../components/BigListActions";
-import { useEffect } from "react";
-import { useLoaderData } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { socket } from "../contexts/SocketProvider";
-import styles from "./Admin.css";
+import "./Admin.css";
+import axios from "axios";
+import { useAuth } from "../hooks/useAuth";
+
 export async function loader() {
-  const sessions = await new Promise((resolve, reject) => {
-    socket.emit("getUsers", (data) => {
-      resolve(data);
-    });
+  let users = await new Promise((resolve, reject) => {
+    axios
+      .request({
+        method: "get",
+        url: `/users`,
+      })
+      .then((response) => {
+        resolve(response.data);
+      })
+      .catch((error) => {
+        reject(error);
+      });
   });
-  return sessions;
+  return users;
 }
 
 export default function Users() {
   const users = useLoaderData();
+  const { user: currentUser } = useAuth();
 
   useEffect(() => {
     return () => {};
@@ -34,7 +39,8 @@ export default function Users() {
             <tr>
               <td>Username</td>
               <td>email</td>
-              <td>Name</td>
+              <td>First Name</td>
+              <td>Last Name</td>
               <td>Role</td>
               <td>Active</td>
               <td>Actions</td>
@@ -48,15 +54,23 @@ export default function Users() {
                   <td>
                     <a href={`mailto:${user.email}`}>{user.email}</a>
                   </td>
-                  <td>{user.name}</td>
+                  <td>{user.firstName}</td>
+                  <td>{user.lastName}</td>
                   <td>{user.role}</td>
                   <td>
                     {user.active && <i className="fa-solid fa-check"></i>}
                   </td>
                   <td className="actions">
-                    <Link to={`edit/${user._id}`}>
+                    <Link
+                      to={
+                        user._id === currentUser.id
+                          ? `/dashboard/profile`
+                          : `/dashboard/users/${user._id}/edit`
+                      }
+                    >
                       <i className="fa-solid fa-edit"></i>
                     </Link>
+
                     <Link to={`delete/${user._id}`}>
                       <i className="fa-solid fa-trash"></i>
                     </Link>

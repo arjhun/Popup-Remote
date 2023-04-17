@@ -1,10 +1,12 @@
-import { useRouteError } from "react-router-dom";
+import { useRouteError, Navigate } from "react-router-dom";
 import Page from "../components/Page";
 import "./ErrorPage.css";
 
 export default function ErrorPage() {
   const error = useRouteError();
-
+  if (error.response?.status === 401) {
+    return <Navigate to="/login" />;
+  }
   return (
     <Page title={"Error!"}>
       <div id="error-page">
