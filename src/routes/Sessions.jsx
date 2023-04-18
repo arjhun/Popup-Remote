@@ -87,7 +87,7 @@ export default function Sessions() {
             setSessionList((oldArray) => {
               return[session.data,...oldArray];
             });
-              clearInput();
+            clearInput();
             resolve();
           })
           .catch((error) => {
@@ -147,7 +147,7 @@ export default function Sessions() {
             <BigListItem
               key={session._id}
               shouldFilter={filtering}
-              filterOperation={() => session.questions.length === 0}
+              filterOperation={() => session.popupCount === 0 ||session.popupCount === undefined}
               actions={
                 <BigListActions>
                   <BigListActionButton
@@ -163,7 +163,7 @@ export default function Sessions() {
               content={
                 <Link to={`session/${session._id}`}>
                   <i className="fa-solid fa-calendar"></i>
-                  {` ${session.title} (${session.popupCount})`}
+                  {` ${session.title} (${session.popupCount || 0})`}
                 </Link>
               }
             />
