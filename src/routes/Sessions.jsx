@@ -78,18 +78,21 @@ export default function Sessions() {
       if (!newSessionRef.current.value) {
         reject();
       } else {
-        socket.emit(
-          "addSession",
-          { _id: currentSession, title: newSessionRef.current.value },
-          (success) => {
-            if (success) {
-              resolve();
+        axios({
+          method: "post",
+          url: `/sessions/`,
+          data: {title: newSessionRef.current.value}
+        })
+          .then((session) => {
+            setSessionList((oldArray) => {
+              return[session.data,...oldArray];
+            });
               clearInput();
-            } else {
-              reject();
-            }
-          }
-        );
+            resolve();
+          })
+          .catch((error) => {
+            reject(error);
+          });
       }
     });
   }
