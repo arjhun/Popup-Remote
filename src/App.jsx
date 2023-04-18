@@ -3,12 +3,6 @@ import { AuthProvider } from "./contexts/AuthProvider";
 import { SocketProvider } from "./contexts/SocketProvider";
 import { ToastContainer } from "react-toastify";
 import { Outlet } from "react-router-dom";
-import {
-  ClerkProvider,
-  SignedIn,
-  SignedOut,
-  RedirectToSignIn,
-} from "@clerk/clerk-react";
 
 export default function App() {
   return (
