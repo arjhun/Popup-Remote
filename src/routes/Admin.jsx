@@ -4,6 +4,7 @@ import Page from "../components/Page";
 import "./Admin.css";
 import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
+import ActiveInput from "./ActiveInput";
 
 export async function loader() {
   let users = await new Promise((resolve, reject) => {
@@ -58,7 +59,7 @@ export default function Users() {
                   <td>{user.lastName}</td>
                   <td>{user.role}</td>
                   <td>
-                    {user.active && <i className="fa-solid fa-check"></i>}
+                    { <ActiveInput user={user}></ActiveInput>}
                   </td>
                   <td className="actions">
                     <Link
