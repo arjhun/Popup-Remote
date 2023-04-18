@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { useLoaderData, Link } from "react-router-dom";
+import React from "react";
+import { useLoaderData, Link} from "react-router-dom";
 import Page from "../components/Page";
 import "./Admin.css";
 import axios from "axios";
@@ -26,10 +26,6 @@ export async function loader() {
 export default function Users() {
   const users = useLoaderData();
   const { user: currentUser } = useAuth();
-
-  useEffect(() => {
-    return () => {};
-  }, []);
 
   return (
     <Page title={"Users"}>
