@@ -8,7 +8,7 @@ import RemoteConfig from "../config/Config";
 axios.defaults.baseURL = RemoteConfig.SERVER_URL;
 
 axios.interceptors.request.use((config) => {
-  let token = getUser("user", null).token;
+ 
 
   if (token) {
     config.headers["Authorization"] = "Bearer " + token;
