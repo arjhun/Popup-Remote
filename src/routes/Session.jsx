@@ -1,8 +1,7 @@
-import { useRef, useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useLoaderData } from "react-router-dom";
 import "./Session.css";
 import { socket } from "../contexts/SocketProvider";
-
 import BigList from "../components/BigList";
 import BigListItem from "../components/BigListItem";
 import BigListActions, {
@@ -10,6 +9,10 @@ import BigListActions, {
 } from "../components/BigListActions";
 import Page from "../components/Page";
 import axios from "axios";
+import ReactTimeAgo from "react-time-ago";
+import Remote from "../components/Remote";
+import { DragDropContext } from "react-beautiful-dnd";
+import CreatePopupForm from "../components/CreatePopupForm";
 
 export async function loader({ params }) {
   let session = await new Promise((resolve, reject) => {
@@ -33,11 +36,8 @@ export default function Session() {
   const session = useLoaderData();
   const [filtering, setFiltering] = useState();
   const [playingPopup, setPlayingPopup] = useState();
-  const lastPopup = useRef(null);
-  const [isSending, setIsSending] = useState(false);
-  const [currentPopup, setCurrentPopup] = useState();
   const [popups, setPopups] = useState(session.popups);
-  const newPopupRef = useRef();
+  const [currentPopup, setCurrentPopup] = useState();
 
   useEffect(() => {
     socket.on("deletePopup", (sessionId, popupId) => {
@@ -62,7 +62,6 @@ export default function Session() {
     });
 
     socket.on("addPopup", (sessionId, newPopup) => {
-      console.log("new popup");
       if (sessionId !== session._id) return;
       setPopups((oldArray) => [...oldArray, newPopup]);
     });
@@ -83,62 +82,6 @@ export default function Session() {
     setPopups((oldArray) => oldArray.filter((q) => q._id !== id));
   }
 
-  function resetInput() {
-    newPopupRef.current.value = null;
-    setCurrentPopup(undefined);
-  }
-
-  function handleAddPopup() {
-    const popupContent = newPopupRef.current.value;
-    if (!popupContent) return;
-    const popup = { content: popupContent };
-    setIsSending(true);
-    if (currentPopup) {
-      socket.emit(
-        "updatePopup",
-        session._id,
-        { ...currentPopup, content: popupContent },
-        (succes) => {
-          if (succes) {
-            resetInput();
-            setIsSending(false);
-          }
-        }
-      );
-    } else {
-      socket.emit("addPopup", session._id, popup, (succes) => {
-        if (succes) {
-          resetInput();
-          setIsSending(false);
-        }
-      });
-    }
-  }
-
-  function handleReorderPopup(popup, incr) {
-    let newArray = [...popups];
-
-    newArray.forEach((element, i) => {
-      element.order = i;
-    });
-    let currIndex = newArray.indexOf(popup);
-    let switchIndex = currIndex + incr;
-    if (switchIndex < 0 || switchIndex > newArray.length - 1) return;
-    newArray[currIndex].order = switchIndex;
-    newArray[switchIndex].order = currIndex;
-    let reducedArray = newArray.map((e) => ({ _id: e._id, order: e.order }));
-    sortByOrder(newArray);
-    socket.emit("sortPopups", session._id, reducedArray, (success) => {
-      if (success) setPopups(newArray);
-    });
-  }
-
-  function handleEditPopup(popup) {
-    setCurrentPopup(popup);
-    newPopupRef.current.focus();
-    newPopupRef.current.value = popup.content;
-  }
-
   function handleDelPopup(popup) {
     if (!window.confirm("Are you sure?")) return;
     socket.emit("deletePopup", session._id, popup._id, (success) => {
@@ -146,9 +89,11 @@ export default function Session() {
     });
   }
 
+  function handleEditPopup(popup) {
+    setCurrentPopup(popup);
+  }
+
   function handleShowPopup(popup) {
-    if (playingPopup && popup._id === playingPopup._id) return;
-    lastPopup.current = popup;
     socket.emit("showPopup", popup);
   }
 
@@ -158,12 +103,33 @@ export default function Session() {
     socket.emit("updatePopup", session._id, transferPopup, (success) => {});
   }
 
-  function handleHidePopup() {
-    socket.emit("hide");
-  }
+  function onDragEnd(result) {
+    const { destination, source, draggableId } = result;
 
-  let buttonText = !currentPopup ? "Add" : "Edit";
-  if (isSending) buttonText = <i className="fa-solid fa-star"></i>;
+    if (!destination) return;
+
+    if (
+      destination.index === source.index &&
+      destination.droppableId === source.droppableId
+    )
+      return;
+
+    let oldPopup = popups[source.index];
+    let newArray = [...popups];
+    newArray.splice(source.index, 1);
+    newArray.splice(destination.index, 0, oldPopup);
+
+    let reducedArray = newArray.map((e, index) => ({
+      _id: e._id,
+      order: index,
+    }));
+
+    socket.emit("sortPopups", session._id, reducedArray, (success) => {
+      if (success) {
+        setPopups(newArray);
+      }
+    });
+  }
 
   return (
     <Page title={session.title}>
@@ -171,55 +137,55 @@ export default function Session() {
         <header className="session-header">
           <h1>{session.title}</h1>
           <p>
-            <strong>Created:</strong>{" "}
-            {new Date(session.createdAt).toLocaleString()} <br />
-            <strong>Updated:</strong>{" "}
-            {new Date(session.updatedAt).toLocaleString()} <br />
-            <strong>Total Popups:</strong> {popups.length} <br />
+            <strong>Created: </strong>
+            <ReactTimeAgo
+              date={new Date(session.createdAt)}
+              locale="en-US"
+              timeStyle="round-minute"
+            />
+            <br />
+
+            <strong>Updated: </strong>
+            <ReactTimeAgo
+              date={new Date(session.updatedAt)}
+              locale="en-US"
+              timeStyle="round-minute"
+            />
+            <br />
+            <strong>Total Popups: </strong>
+            {popups.length}
           </p>
         </header>
         <div className="remoteInputPanel">
           <section>
-            <h2>Remote:</h2>
-            <button onClick={() => handleHidePopup()}>Hide Popup</button>
-            <button onClick={(e) => handleShowPopup(lastPopup.current)}>
-              Repeat Last
-            </button>
+            <Remote />
           </section>
           <section>
-            <h2>{currentPopup ? "Edit" : "Create"} a popup:</h2>
-            <textarea ref={newPopupRef} cols="60" rows="10"></textarea>
-            <br />
-            <button
-              className="addButton"
-              disabled={isSending}
-              onClick={handleAddPopup}
-            >
-              {buttonText}
-            </button>
-            {currentPopup && (
-              <button onClick={() => resetInput()} className="cancelButton">
-                cancel
-              </button>
-            )}
+            <CreatePopupForm popup={currentPopup} sessionId={session._id} />
           </section>
         </div>
         <div className="remoteListPanel">
-          <BigList
-            filterLabel={"Favorites"}
-            filterState={setFiltering}
-            noItemMessage="No Popups yet!"
-          >
-            {popups.map((popup) => (
-              <BigListItem
-                key={popup._id}
-                shouldFilter={filtering}
-                filterOperation={() => !popup.fav}
-                highlight={popup.fav}
-                selected={playingPopup ? popup._id === playingPopup._id : false}
-                handleClick={() => handleShowPopup(popup)}
-                content={popup.content}
-                actions={
+          <DragDropContext onDragEnd={onDragEnd}>
+            <BigList
+              title="Popups"
+              filterLabel={"Favorites"}
+              filterState={setFiltering}
+              noItemMessage="No Popups yet!"
+            >
+              {popups.map((popup, index) => (
+                <BigListItem
+                  key={popup._id}
+                  id={popup._id}
+                  index={index}
+                  shouldFilter={filtering}
+                  filterOperation={() => !popup.fav}
+                  highlight={popup.fav}
+                  selected={
+                    playingPopup ? popup._id === playingPopup._id : false
+                  }
+                  handleClick={() => handleShowPopup(popup)}
+                >
+                  {popup.content}
                   <BigListActions>
                     <BigListActionButton
                       icon="fa-solid fa-star"
@@ -233,19 +199,11 @@ export default function Session() {
                       icon="fa-solid fa-trash"
                       onClick={() => handleDelPopup(popup)}
                     />
-                    <BigListActionButton
-                      icon="fa-solid fa-arrow-up"
-                      onClick={() => handleReorderPopup(popup, -1)}
-                    />
-                    <BigListActionButton
-                      icon="fa-solid fa-arrow-down"
-                      onClick={() => handleReorderPopup(popup, +1)}
-                    />
                   </BigListActions>
-                }
-              />
-            ))}
-          </BigList>
+                </BigListItem>
+              ))}
+            </BigList>
+          </DragDropContext>
         </div>
       </div>
     </Page>

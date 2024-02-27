@@ -1,4 +1,4 @@
-import { React, useEffect, useRef, useState } from "react";
+import { React, useRef, useState } from "react";
 import BigList from "../components/BigList";
 import Page from "../components/Page";
 import BigListItem from "../components/BigListItem";
@@ -6,10 +6,11 @@ import BigListActions, {
   BigListActionButton,
 } from "../components/BigListActions";
 import LoadingButton from "../components/LoadingButton";
-import { socket } from "../contexts/SocketProvider";
 import "./Sessions.css";
 import { Link, useLoaderData } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { DragDropContext } from "react-beautiful-dnd";
 
 export async function loader() {
   let sessions = await new Promise((resolve, reject) => {
@@ -34,66 +35,45 @@ export default function Sessions() {
   const [currentSession, setCurrentSession] = useState();
   const [filtering, setFiltering] = useState(false);
 
-  useEffect(() => {
-    socket.on("addSession", (data) => {
-      setSessionList((oldArray) => {
-        const i = oldArray.findIndex((s) => s._id === data._id);
-        if (i > -1) {
-          let newData = [...oldArray];
-          newData[i] = data;
-          return newData;
-        } else {
-          return [...oldArray, data];
-        }
-      });
-    });
-
-    socket.on("sessionDeleted", (sessionId) => {
-      setSessionList((oldList) => {
-        return oldList.filter((session) => sessionId !== session._id);
-      });
-    });
-
-    return () => {
-      socket.off("addSession");
-      socket.off("sessionDeleted");
-    };
-  }, []);
-
   function handleDelSession(session) {
     if (
       !window.confirm("Are you shure you want to delete " + session.title + "?")
     )
       return;
-    socket.emit("deleteSession", session._id, (success) => {
-      if (success)
+    axios
+      .delete("/sessions/" + session._id)
+      .then(() => {
         setSessionList((oldArray) =>
           oldArray.filter((s) => s._id !== session._id)
         );
-    });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
-  async function handleAddSession() {
-    await new Promise((resolve, reject) => {
-      if (!newSessionRef.current.value) {
-        reject();
-      } else {
-        axios({
-          method: "post",
-          url: `/sessions/`,
-          data: {title: newSessionRef.current.value}
-        })
-          .then((session) => {
-            setSessionList((oldArray) => {
-              return[session.data,...oldArray];
-            });
-            clearInput();
-            resolve();
-          })
-          .catch((error) => {
-            reject(error);
+  function handleAddSession() {
+    if (!newSessionRef.current.value) return;
+    return new Promise((resolve, reject) => {
+      let promise = axios
+        .post(`/sessions/`, { title: newSessionRef.current.value })
+        .then((session) => {
+          setSessionList((oldArray) => {
+            return [session.data, ...oldArray];
           });
-      }
+          clearInput();
+          resolve();
+          return Promise.resolve(session);
+        })
+        .catch((error) => {
+          reject();
+          return Promise.reject(error);
+        });
+      return toast.promise(promise, {
+        pending: "Adding Session",
+        success: "Session Added 👌",
+        error: "Adding Session Failed 🤯",
+      });
     });
   }
 
@@ -109,16 +89,7 @@ export default function Sessions() {
     setCurrentSession(undefined);
   }
 
-  function filterSessions(session) {
-    return session.questions.length > 0;
-  }
-  function createEntryContent(session) {
-    return ` ${session.title} (${session.questions.length})`;
-  }
-
-  async function longLoad() {
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-  }
+  function onDragEnd() {}
 
   return (
     <Page title="sessions">
@@ -138,17 +109,28 @@ export default function Sessions() {
             </button>
           )}
         </div>
-        <BigList
-          filterLabel="Hide empty"
-          filterState={setFiltering}
-          noItemMessage="No Questions yet!"
-        >
-          {sessionList.map((session) => (
-            <BigListItem
-              key={session._id}
-              shouldFilter={filtering}
-              filterOperation={() => session.popupCount === 0 ||session.popupCount === undefined}
-              actions={
+        <DragDropContext onDragEnd={onDragEnd}>
+          <BigList
+            title="Sessions"
+            filterLabel="Hide empty"
+            filterState={setFiltering}
+            noItemMessage="No Questions yet!"
+          >
+            {sessionList.map((session, index) => (
+              <BigListItem
+                isDragDisabled={true}
+                key={session._id}
+                id={session._id}
+                index={index}
+                shouldFilter={filtering}
+                filterOperation={() =>
+                  session.popupCount === 0 || session.popupCount === undefined
+                }
+              >
+                <Link to={`session/${session._id}`}>
+                  <i className="fa-solid fa-calendar"></i>
+                  {` ${session.title} (${session.popupCount || 0})`}
+                </Link>
                 <BigListActions>
                   <BigListActionButton
                     icon="fa-solid fa-edit"
@@ -159,16 +141,10 @@ export default function Sessions() {
                     onClick={() => handleDelSession(session)}
                   />
                 </BigListActions>
-              }
-              content={
-                <Link to={`session/${session._id}`}>
-                  <i className="fa-solid fa-calendar"></i>
-                  {` ${session.title} (${session.popupCount || 0})`}
-                </Link>
-              }
-            />
-          ))}
-        </BigList>
+              </BigListItem>
+            ))}
+          </BigList>
+        </DragDropContext>
       </div>
     </Page>
   );

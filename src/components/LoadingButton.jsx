@@ -27,9 +27,11 @@ export default function LoadingButton(props) {
   }, [status]);
 
   async function handleClick() {
+    let promise = doAction();
+    if (!(promise instanceof Promise)) return;
     if (status !== Status.loading && timeOut.current !== null) {
       setStatus(Status.loading);
-      doAction().then(
+      promise.then(
         () => {
           setStatus(Status.done);
         },

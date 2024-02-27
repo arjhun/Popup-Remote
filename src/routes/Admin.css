@@ -33,3 +33,18 @@
     flex-wrap: wrap;
     gap: 10px;
 }
+
+.page-users header{
+
+    width: 100%;
+    display: flex;
+}
+
+.page-users header h1{
+    flex-grow: 1;
+}
+
+.page-users .btn.addUser{
+    
+    align-self: center ;
+}

@@ -1,10 +1,11 @@
 import React from "react";
-import { useLoaderData, Link} from "react-router-dom";
+import { useLoaderData, Link } from "react-router-dom";
 import Page from "../components/Page";
 import "./Admin.css";
 import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
-import ActiveInput from "./ActiveInput";
+import ActiveForm from "../components/ActiveForm";
+import RoleForm from "../components/RoleForm";
 
 export async function loader() {
   let users = await new Promise((resolve, reject) => {
@@ -23,13 +24,18 @@ export async function loader() {
   return users;
 }
 
-export default function Users() {
+export default function users() {
   const users = useLoaderData();
   const { user: currentUser } = useAuth();
 
   return (
-    <Page title={"Users"}>
-      <h1>Admin</h1>
+    <Page title="Users">
+      <header>
+        <h1>Admin</h1>
+        <Link to="add" className="btn addUser">
+          <i className="fa-solid fa-plus"></i> Add user
+        </Link>
+      </header>
       <div className="users">
         <table>
           <thead>
@@ -53,9 +59,16 @@ export default function Users() {
                   </td>
                   <td>{user.firstName}</td>
                   <td>{user.lastName}</td>
-                  <td>{user.role}</td>
                   <td>
-                    { <ActiveInput user={user}></ActiveInput>}
+                    <RoleForm id={user._id} role={user.role}></RoleForm>
+                  </td>
+                  <td>
+                    {
+                      <ActiveForm
+                        id={user._id}
+                        isActive={user.active}
+                      ></ActiveForm>
+                    }
                   </td>
                   <td className="actions">
                     <Link

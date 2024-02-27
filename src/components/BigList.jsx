@@ -1,12 +1,9 @@
-import { Children } from "react";
-import { React, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
-
+import React from "react";
 import "./BigList.css";
-import BigListItem from "./BigListItem";
+import { StrictModeDroppable } from "./StrictModeDroppable";
 
 export default function BigList(props) {
-  const { filterLabel, filterState, noItemMessage = "No items yet!" } = props;
+  const { title, filterLabel, filterState } = props;
 
   function handleFilter(e) {
     filterState(e.target.checked);
@@ -15,8 +12,9 @@ export default function BigList(props) {
   return (
     <div className="biglist">
       {filterLabel && (
-        <div className="options">
-          <>
+        <div className="biglist-header">
+          {title && <div className="title">{title}</div>}
+          <div className="options">
             <span>
               <strong>Filter:</strong>
             </span>
@@ -27,16 +25,17 @@ export default function BigList(props) {
               type="checkbox"
               onChange={handleFilter}
             />
-          </>
+          </div>
         </div>
       )}
-      <ul>
-        {props.children.length > 0 ? (
-          props.children
-        ) : (
-          <li key="0">{noItemMessage}</li>
+      <StrictModeDroppable droppableId="sessionList">
+        {(provided, snapshot) => (
+          <div ref={provided.innerRef} {...provided.droppableProps}>
+            {props.children}
+            {provided.placeholder}
+          </div>
         )}
-      </ul>
+      </StrictModeDroppable>
     </div>
   );
 }

@@ -1,9 +1,10 @@
 .menu{
-    width: 100%;
-    height: 50px;
+    display: flex;
+        flex-wrap: wrap;
+        min-height: 50px;
     line-height: 50px;
     position: sticky;
-    top: 0;
+    top: 50px;
     z-index: 9999;
     background-color: black;
     box-shadow: 0px 10px 5px darkgrey;
@@ -11,29 +12,30 @@
 }
 
 .menu ul{
-    padding:0 10px 0 10px;
-    margin: 0px 0px 10px 0px;
+    flex-shrink: 0;
     list-style: none;
+    padding: 0;
+        margin: 0px 10px 0px 0px;
     text-decoration: none;
     color: white;
 }
 .menu ul li:hover>ul {
-    display: block;
+    display: flex;
+        flex-direction: column;
 }
 
 .menu ul ul {
+flex-direction: column;
     display: none;
     box-shadow: 0px 10px 5px darkgrey;
     position: absolute;
     background-color: rgb(32, 32, 32);
 }
-
 .routes{
-float: left;
+    flex-grow: 1;
 }
 .extra {
     display: flex;
-    align-items: flex-end;
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: flex-end;
@@ -50,6 +52,7 @@ float: left;
 }
 
 .menu li a:link, .menu li a:visited{
+    padding: 10px;
     color: white;
     text-decoration: none;
 }
@@ -63,5 +66,11 @@ float: left;
 }
 
 .logo{
+    margin-left: 10px;
     color: aquamarine;
+}
+
+select{
+    padding: 5px;
+    border-radius: 3px;
 }

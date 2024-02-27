@@ -3,10 +3,9 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import ErrorPage from "./routes/ErrorPage";
-import Admin from "./routes/Admin";
 import Session, { loader as sessionLoader } from "./routes/Session";
 import Sessions, { loader as sessionsLoader } from "./routes/Sessions";
-import { loader as usersLoader } from "./routes/Admin";
+import User, { loader as usersLoader } from "./routes/Users";
 import {
   loader as profileLoader,
   action as editProfileAction,
@@ -15,10 +14,25 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "./routes/Login";
 import Logout from "./routes/Logout";
 import Dashboard from "./routes/Dashboard";
-import AddUser from "./routes/AddUser";
+import UserAdd, { action as addUserAction } from "./routes/UserAdd";
+import UserEdit, {
+  loader as userLoader,
+  action as editUserAction,
+} from "./routes/UserEdit";
 import Home from "./routes/Home";
 import Profile from "./routes/Profile";
-import { SocketProvider } from "./contexts/SocketProvider";
+import TimeAgo from "javascript-time-ago";
+import { ToastContainer } from "react-toastify";
+import en from "javascript-time-ago/locale/en.json";
+import nl from "javascript-time-ago/locale/nl.json";
+import ResetRequest from "./routes/ResetRequest";
+import LoginForm from "./routes/LoginForm";
+import ResetPassword, {
+  action as resetPasswordAction,
+} from "./routes/ResetPassword";
+
+TimeAgo.addDefaultLocale(en);
+TimeAgo.addLocale(nl);
 
 const router = createBrowserRouter([
   {
@@ -27,7 +41,19 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       { element: <Home />, index: true },
-      { path: "/login", element: <Login /> },
+      {
+        path: "/login",
+        element: <Login />,
+        children: [
+          { index: true, element: <LoginForm /> },
+          { path: "reset-request", element: <ResetRequest /> },
+          {
+            path: "password-reset",
+            element: <ResetPassword />,
+            action: resetPasswordAction,
+          },
+        ],
+      },
       { path: "/logout", element: <Logout /> },
     ],
   },
@@ -35,6 +61,8 @@ const router = createBrowserRouter([
     path: "/dashboard",
     element: <Dashboard />,
     errorElement: <ErrorPage />,
+
+    // and then put the children under this route:
     children: [
       {
         index: true,
@@ -49,21 +77,22 @@ const router = createBrowserRouter([
       {
         path: "users",
         children: [
-          { index: true, element: <Admin />, loader: usersLoader },
+          { index: true, element: <User />, loader: usersLoader },
           {
             path: "add",
-            element: <AddUser />,
+            element: <UserAdd />,
+            action: addUserAction,
           },
           {
             path: ":id/edit",
-            element: <Profile />,
-            loader: profileLoader,
-            action: editProfileAction,
+            element: <UserEdit />,
+            loader: userLoader,
+            action: editUserAction,
           },
         ],
       },
       {
-        path: "profile",
+        path: "profile/:id",
         element: <Profile />,
         loader: profileLoader,
         action: editProfileAction,
@@ -76,8 +105,18 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
   <React.StrictMode>
-    <SocketProvider>
-      <RouterProvider router={router} />
-    </SocketProvider>
+    <ToastContainer
+      position="bottom-left"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="dark"
+    />
+    <RouterProvider router={router} />
   </React.StrictMode>
 );

@@ -1,8 +1,16 @@
+html,
+body {
+    height: 100%;
+}
 .login-wrapper {
-    display: grid;
-        place-items: center;
-        grid-template-rows: 1fr 1fr 1fr;
-        grid-template-columns: 1fr minmax(0, 420px) 1fr;
+    margin-top: 100px;
+        height: 100%;
+        justify-content: center;
+        display: flex;
+    }
+    
+    .page-login {
+        height: 100%
 }
 
 .login-wrapper form {
@@ -15,7 +23,9 @@
     width: 100%;
 }
 
-.Logo {}
+.Logo {
+    margin-left: 10px;
+}
 
 .login-form-wrapper {
     grid-column: 2;

@@ -28,14 +28,29 @@ a:link, a:visited{
 }
 
 input[type=text],
-input[type=password] {
+input[type=password],
+input[type=email] {
   margin-right: 10px;
   padding: 10px;
     border-radius: 5px;
     border: 1px solid grey;
 }
 
-button{
+.userform input:required {
+  border: 1px solid black;
+}
+
+.userform input:invalid {
+  border: 1px solid red;
+}
+
+.userform input:valid {
+  border: 1px solid green;
+}
+
+button,
+.btn,
+.btn:visited {
   cursor: pointer;
   background-color: black; /* Green */
   border: none;
@@ -48,10 +63,18 @@ button{
   border-radius: 5px;
 }
 
-button:hover{
+.btn:hover {
   opacity: .75;
 }
 
+button:enabled:hover {
+  opacity: .75;
+}
+
+button:disabled {
+  background-color: grey;
+  cursor: default;
+}
 .label{
 font-size: .8em;
 height: 10px;
@@ -79,6 +102,15 @@ background-color: green;
     opacity: 0;
   }
 }
-form input:invalid {
+form label small {
+  color: grey;
+}
+
+.error {
+  font-size: .75em;
+  color: red;
+  background-color: rgba(255, 0, 0, 0.1);
+  padding: 5px;
+  border-radius: 5px;
   border: 1px solid red;
 }

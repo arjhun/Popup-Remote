@@ -76,6 +76,9 @@ section{
 .star-yellow{
     color: rgb(255, 196, 0);
 }
+.session li.selected .content {
+    border-left: 5px solid rgb(18 164 211)
+}
 
 @media only screen and (max-width: 820px) {
     .session {
@@ -84,12 +87,7 @@ section{
     }
     .session > div, .session > header{
         margin-bottom: 20px;
-    }
-    .extra a{
-        display: none;
-    }
+    
   }
 
-  .session li.selected .content{
-    border-left: 5px solid rgb(18 164 211)
-  }
+}
