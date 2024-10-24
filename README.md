@@ -2,6 +2,7 @@
 A Popup Remote to use in OBS for content creators with moderators. Build on Socket.io Express and React.js. 
 Vite is used as a bundler and frontend tooling.
 
+Use with https://github.com/arjhun/Popup-Remote-Server
 
 ## Example Docker Compose
 
