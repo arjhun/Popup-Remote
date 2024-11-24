@@ -4,6 +4,7 @@ import "./Session.css";
 import { socket } from "../contexts/SocketProvider";
 import BigList from "../components/BigList";
 import BigListItem from "../components/BigListItem";
+import EditPopupForm from "../components/EditPopupForm";
 import BigListActions, {
   BigListActionButton,
 } from "../components/BigListActions";
@@ -92,8 +93,12 @@ export default function Session() {
   function handleEditPopup(popup) {
     setCurrentPopup(popup);
   }
+  function handleCancel() {
+    setCurrentPopup(null);
+  }
 
   function handleShowPopup(popup) {
+    if(popup !== currentPopup)
     socket.emit("showPopup", popup);
   }
 
@@ -101,6 +106,10 @@ export default function Session() {
     let transferPopup = { ...popup };
     transferPopup.fav = !popup.fav;
     socket.emit("updatePopup", session._id, transferPopup, (success) => {});
+  }
+  
+  function handleExportPopup(popup){
+    
   }
 
   function onDragEnd(result) {
@@ -161,7 +170,7 @@ export default function Session() {
             <Remote />
           </section>
           <section>
-            <CreatePopupForm popup={currentPopup} sessionId={session._id} />
+            <CreatePopupForm sessionId={session._id} />
           </section>
         </div>
         <div className="remoteListPanel">
@@ -184,7 +193,10 @@ export default function Session() {
                     playingPopup ? popup._id === playingPopup._id : false
                   }
                   handleClick={() => handleShowPopup(popup)}
-                >
+                > 
+                  {(popup == currentPopup)?(
+                  <EditPopupForm popup={currentPopup} onCancelClick={handleCancel} sessionId={session._id}/>
+                  ):(<>
                   {popup.content}
                   <BigListActions>
                     <BigListActionButton
@@ -199,7 +211,12 @@ export default function Session() {
                       icon="fa-solid fa-trash"
                       onClick={() => handleDelPopup(popup)}
                     />
+                    <BigListActionButton
+                      icon="fa-solid fa-file-export"
+                      onClick={() => handleExportPopup(popup)}
+                    />
                   </BigListActions>
+                   </>)}
                 </BigListItem>
               ))}
             </BigList>
