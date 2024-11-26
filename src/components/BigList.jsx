@@ -2,8 +2,7 @@ import React from "react";
 import "./BigList.css";
 import { StrictModeDroppable } from "./StrictModeDroppable";
 
-export default function BigList(props) {
-  const { title, filterLabel, filterState } = props;
+export default function BigList({ title, filterLabel, filterState, children }) {
 
   function handleFilter(e) {
     filterState(e.target.checked);
@@ -31,7 +30,7 @@ export default function BigList(props) {
       <StrictModeDroppable droppableId="sessionList">
         {(provided, snapshot) => (
           <div ref={provided.innerRef} {...provided.droppableProps}>
-            {props.children}
+            {children}
             {provided.placeholder}
           </div>
         )}
