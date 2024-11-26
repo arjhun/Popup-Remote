@@ -11,6 +11,7 @@ import { Link, useLoaderData } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { DragDropContext } from "react-beautiful-dnd";
+import { useScheduledSession } from "../contexts/ScheduledSessionProvider";
 
 export async function loader() {
   let sessions = await new Promise((resolve, reject) => {
@@ -34,6 +35,7 @@ export default function Sessions() {
   const newSessionRef = useRef(null);
   const [currentSession, setCurrentSession] = useState();
   const [filtering, setFiltering] = useState(false);
+  const { updateScheduledSession } = useScheduledSession();
 
   function handleDelSession(session) {
     if (
@@ -75,6 +77,9 @@ export default function Sessions() {
         error: "Adding Session Failed 🤯",
       });
     });
+  }
+  function handleSetScheduledSession(session) {
+    updateScheduledSession(session);
   }
 
   function handleEditSession(session) {
@@ -132,6 +137,10 @@ export default function Sessions() {
                   {` ${session.title} (${session.popupCount || 0})`}
                 </Link>
                 <BigListActions>
+                  <BigListActionButton
+                    icon="fa-solid fa-calendar-check"
+                    onClick={() => handleSetScheduledSession(session)}
+                  />
                   <BigListActionButton
                     icon="fa-solid fa-edit"
                     onClick={() => handleEditSession(session)}

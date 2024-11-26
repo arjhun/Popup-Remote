@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLoaderData } from "react-router-dom";
 import "./Session.css";
+import { toast } from "react-toastify";
 import { socket } from "../contexts/SocketProvider";
 import BigList from "../components/BigList";
 import BigListItem from "../components/BigListItem";
@@ -14,6 +15,7 @@ import ReactTimeAgo from "react-time-ago";
 import Remote from "../components/Remote";
 import { DragDropContext } from "react-beautiful-dnd";
 import CreatePopupForm from "../components/CreatePopupForm";
+import { useScheduledSession } from "../contexts/ScheduledSessionProvider";
 
 export async function loader({ params }) {
   let session = await new Promise((resolve, reject) => {
@@ -39,6 +41,7 @@ export default function Session() {
   const [playingPopup, setPlayingPopup] = useState();
   const [popups, setPopups] = useState(session.popups);
   const [currentPopup, setCurrentPopup] = useState();
+  const { scheduledSession } = useScheduledSession();
 
   useEffect(() => {
     socket.on("deletePopup", (sessionId, popupId) => {
@@ -212,11 +215,13 @@ export default function Session() {
                       onClick={() => handleDelPopup(popup)}
                     />
                     <BigListActionButton
+                          title={`Export to session "${scheduledSession.title}"`}
                       icon="fa-solid fa-file-export"
                       onClick={() => handleExportPopup(popup)}
                     />
                   </BigListActions>
-                   </>)}
+                    </>
+                  )}
                 </BigListItem>
               ))}
             </BigList>

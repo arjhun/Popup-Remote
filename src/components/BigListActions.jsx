@@ -1,12 +1,13 @@
 import React from "react";
 
-export default function BigListActions(props) {
-  return <div className="actions">{props.children}</div>;
+export default function BigListActions({ children }) {
+  return <div className="actions">{children}</div>;
 }
 
-export function BigListActionButton({ icon, onClick }) {
+export function BigListActionButton({ icon, onClick, title }) {
   return (
     <button
+      title={title}
       onClick={(e) => {
         e.stopPropagation();
         onClick();
