@@ -138,14 +138,17 @@ export default function Sessions() {
                 </Link>
                 <BigListActions>
                   <BigListActionButton
+                    title={"Select as active session"}
                     icon="fa-solid fa-calendar-check"
                     onClick={() => handleSetScheduledSession(session)}
                   />
                   <BigListActionButton
+                    title={"Edit session"}
                     icon="fa-solid fa-edit"
                     onClick={() => handleEditSession(session)}
                   />
                   <BigListActionButton
+                    title={"Delete session"}
                     icon="fa-solid fa-trash"
                     onClick={() => handleDelSession(session)}
                   />

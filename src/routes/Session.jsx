@@ -111,8 +111,14 @@ export default function Session() {
     socket.emit("updatePopup", session._id, transferPopup, (success) => {});
   }
   
-  function handleExportPopup(popup){
-    
+  function handleExportPopup(popup) {
+    const newPopup = Object.assign({}, popup);
+    delete newPopup._id;
+    console.log(popup);
+    if (!scheduledSession) return;
+    socket.emit("addPopup", scheduledSession._id, newPopup, (success) => {
+      if (success) toast("Popup exported to scheduled session!");
+    });
   }
 
   function onDragEnd(result) {
@@ -203,14 +209,17 @@ export default function Session() {
                   {popup.content}
                   <BigListActions>
                     <BigListActionButton
+                          title="Add to favorites"
                       icon="fa-solid fa-star"
                       onClick={() => handleFavPopup(popup)}
                     />
                     <BigListActionButton
+                          title="Edit popup"
                       icon="fa-solid fa-edit"
                       onClick={() => handleEditPopup(popup)}
                     />
                     <BigListActionButton
+                          title="Delete popup"
                       icon="fa-solid fa-trash"
                       onClick={() => handleDelPopup(popup)}
                     />
