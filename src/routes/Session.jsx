@@ -101,8 +101,10 @@ export default function Session() {
   }
 
   function handleShowPopup(popup) {
-    if(popup !== currentPopup)
+    console.log(popup._id, playingPopup);
+    if (!playingPopup || playingPopup._id !== popup._id)
     socket.emit("showPopup", popup);
+    else socket.emit("hide");
   }
 
   function handleFavPopup(popup) {
