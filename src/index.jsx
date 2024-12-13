@@ -1,35 +1,38 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import "./index.css";
-import App from "./App";
-import ErrorPage from "./routes/ErrorPage";
-import Session, { loader as sessionLoader } from "./routes/Session";
-import Sessions, { loader as sessionsLoader } from "./routes/Sessions";
-import User, { loader as usersLoader } from "./routes/Users";
-import {
-  loader as profileLoader,
-  action as editProfileAction,
-} from "./routes/Profile";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Login from "./routes/Login";
-import Logout from "./routes/Logout";
-import Dashboard from "./routes/Dashboard";
-import UserAdd, { action as addUserAction } from "./routes/UserAdd";
-import UserEdit, {
-  loader as userLoader,
-  action as editUserAction,
-} from "./routes/UserEdit";
-import Home from "./routes/Home";
-import Profile from "./routes/Profile";
 import TimeAgo from "javascript-time-ago";
-import { ToastContainer } from "react-toastify";
 import en from "javascript-time-ago/locale/en.json";
 import nl from "javascript-time-ago/locale/nl.json";
-import ResetRequest from "./routes/ResetRequest";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import App from "./App";
+import Logout from "./components/Logout";
+import "./index.css";
+import {
+  AccountVerification,
+  loader as verifyLoader,
+} from "./routes/AccountVerification.jsx";
+import Dashboard from "./routes/Dashboard";
+import ErrorPage from "./routes/ErrorPage";
+import Home from "./routes/Home";
+import Login from "./routes/Login";
 import LoginForm from "./routes/LoginForm";
+import Profile, {
+  action as editProfileAction,
+  loader as profileLoader,
+} from "./routes/Profile";
 import ResetPassword, {
   action as resetPasswordAction,
 } from "./routes/ResetPassword";
+import ResetRequest from "./routes/ResetRequest";
+import Session, { loader as sessionLoader } from "./routes/Session";
+import Sessions, { loader as sessionsLoader } from "./routes/Sessions";
+import UserAdd, { action as addUserAction } from "./routes/UserAdd";
+import UserEdit, {
+  action as editUserAction,
+  loader as userLoader,
+} from "./routes/UserEdit";
+import User, { loader as usersLoader } from "./routes/Users";
 
 TimeAgo.addDefaultLocale(en);
 TimeAgo.addLocale(nl);
@@ -47,6 +50,11 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <LoginForm /> },
           { path: "reset-request", element: <ResetRequest /> },
+          {
+            path: "verify",
+            element: <AccountVerification />,
+            loader: verifyLoader,
+          },
           {
             path: "password-reset",
             element: <ResetPassword />,
