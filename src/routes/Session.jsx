@@ -101,7 +101,6 @@ export default function Session() {
   }
 
   function handleShowPopup(popup) {
-    console.log(popup._id, playingPopup);
     if (!playingPopup || playingPopup._id !== popup._id)
     socket.emit("showPopup", popup);
     else socket.emit("hide");
@@ -112,11 +111,10 @@ export default function Session() {
     transferPopup.fav = !popup.fav;
     socket.emit("updatePopup", session._id, transferPopup, (success) => {});
   }
-  
+
   function handleExportPopup(popup) {
     const newPopup = Object.assign({}, popup);
     delete newPopup._id;
-    console.log(popup);
     if (!scheduledSession) return;
     socket.emit("addPopup", scheduledSession._id, newPopup, (success) => {
       if (success) toast("Popup exported to scheduled session!");
