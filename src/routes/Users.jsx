@@ -1,11 +1,12 @@
-import React from "react";
-import { useLoaderData, Link } from "react-router-dom";
-import Page from "../components/Page";
-import "./Admin.css";
 import axios from "axios";
-import { useAuth } from "../hooks/useAuth";
+import React, { useState } from "react";
+import { Link, useLoaderData } from "react-router-dom";
 import ActiveForm from "../components/ActiveForm";
+import Page from "../components/Page";
+import PageHeader from "../components/PageHeader.jsx";
 import RoleForm from "../components/RoleForm";
+import { useAuth } from "../hooks/useAuth";
+import "./Admin.css";
 
 export async function loader() {
   let users = await new Promise((resolve, reject) => {
@@ -25,17 +26,32 @@ export async function loader() {
 }
 
 export default function users() {
-  const users = useLoaderData();
+  const loadedUsers = useLoaderData();
+  const [users, setUsers] = useState(loadedUsers);
   const { user: currentUser } = useAuth();
+
+  const handleDelete = async (e, userId) => {
+    if (!window.confirm("Are you sure?")) return;
+    axios({
+      method: "delete",
+      url: `/users/${userId}`,
+    })
+      .then((response) => {
+        if (response)
+          setUsers((oldArray) => oldArray.filter((u) => u._id !== userId));
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  };
 
   return (
     <Page title="Users">
-      <header>
-        <h1>Admin</h1>
-        <Link to="add" className="btn addUser">
-          <i className="fa-solid fa-plus"></i> Add user
-        </Link>
-      </header>
+      <PageHeader
+        title="Users"
+        buttonTo={"add"}
+        buttonText={"Add User"}
+      ></PageHeader>
       <div className="users">
         <table>
           <thead>
@@ -71,20 +87,18 @@ export default function users() {
                       ></ActiveForm>
                     }
                   </td>
-                  <td className="actions">
-                    <Link
-                      to={
-                        user._id === currentUser.id
-                          ? `/dashboard/profile`
-                          : `/dashboard/users/${user._id}/edit`
-                      }
-                    >
-                      <i className="fa-solid fa-edit"></i>
-                    </Link>
-
-                    <Link to={`delete/${user._id}`}>
-                      <i className="fa-solid fa-trash"></i>
-                    </Link>
+                  <td>
+                    <div className="actions">
+                      <Link to={`/dashboard/users/${user._id}/edit`}>
+                        <i className="fa-solid fa-edit"></i>
+                      </Link>
+                      <span class="btn link">
+                        <i
+                          onClick={(e) => handleDelete(e, user._id)}
+                          className="fa-solid fa-trash"
+                        ></i>
+                      </span>
+                    </div>
                   </td>
                 </tr>
               );
