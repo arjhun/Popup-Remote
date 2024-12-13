@@ -51,6 +51,7 @@ export default function users() {
           </thead>
           <tbody>
             {users.map((user) => {
+              if (user._id === currentUser._id) return;
               return (
                 <tr key={user._id}>
                   <td>{user.username}</td>
