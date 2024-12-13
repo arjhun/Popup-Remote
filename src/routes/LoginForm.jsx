@@ -47,12 +47,14 @@ export default function LoginForm() {
           type="text"
           id="username"
           placeholder="Username"
+          autoComplete="username"
           required
         ></input>
         <input
           ref={password}
           type="password"
           id="password"
+          autoComplete="current-password"
           placeholder="Password"
           title={RemoteConfig.PASSWORD_MESSAGE}
           required
