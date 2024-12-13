@@ -1,17 +1,17 @@
-import { React, useRef, useState } from "react";
+import axios from "axios";
+import { useRef, useState } from "react";
+import { DragDropContext } from "react-beautiful-dnd";
+import { Link, useLoaderData } from "react-router-dom";
+import { toast } from "react-toastify";
 import BigList from "../components/BigList";
-import Page from "../components/Page";
-import BigListItem from "../components/BigListItem";
 import BigListActions, {
   BigListActionButton,
 } from "../components/BigListActions";
+import BigListItem from "../components/BigListItem";
 import LoadingButton from "../components/LoadingButton";
-import "./Sessions.css";
-import { Link, useLoaderData } from "react-router-dom";
-import axios from "axios";
-import { toast } from "react-toastify";
-import { DragDropContext } from "react-beautiful-dnd";
+import Page from "../components/Page";
 import { useScheduledSession } from "../contexts/ScheduledSessionProvider";
+import "./Sessions.css";
 
 export async function loader() {
   let sessions = await new Promise((resolve, reject) => {

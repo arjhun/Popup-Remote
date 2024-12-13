@@ -1,8 +1,8 @@
-import React from "react";
-import { Navigate, redirect, useActionData, useParams } from "react-router";
-import { Link, Form, useSearchParams } from "react-router-dom";
-import RemoteConfig from "../config/Config";
 import axios from "axios";
+import React from "react";
+import { Navigate, useActionData } from "react-router";
+import { Form, Link, useSearchParams } from "react-router-dom";
+import RemoteConfig from "../config/Config";
 
 export const action = async ({ request }) => {
   let formData = await request.formData();
