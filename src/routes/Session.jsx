@@ -1,24 +1,26 @@
-import { useState, useEffect } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { DragDropContext } from "react-beautiful-dnd";
 import { useLoaderData } from "react-router-dom";
-import "./Session.css";
+import ReactTimeAgo from "react-time-ago";
 import { toast } from "react-toastify";
-import { socket } from "../contexts/SocketProvider";
 import BigList from "../components/BigList";
-import BigListItem from "../components/BigListItem";
-import EditPopupForm from "../components/EditPopupForm";
 import BigListActions, {
   BigListActionButton,
 } from "../components/BigListActions";
+import BigListItem from "../components/BigListItem";
 import Page from "../components/Page";
-import axios from "axios";
-import ReactTimeAgo from "react-time-ago";
+import {
+  default as CreatePopupForm,
+  default as PopupForm,
+} from "../components/PopupForm";
 import Remote from "../components/Remote";
-import { DragDropContext } from "react-beautiful-dnd";
-import CreatePopupForm from "../components/CreatePopupForm";
 import { useScheduledSession } from "../contexts/ScheduledSessionProvider";
+import { socket } from "../contexts/SocketProvider";
+import "./Session.css";
 
 export async function loader({ params }) {
-  let session = await new Promise((resolve, reject) => {
+  const session = await new Promise((resolve, reject) => {
     axios
       .request({
         method: "get",
@@ -36,7 +38,7 @@ export async function loader({ params }) {
 }
 
 export default function Session() {
-  const session = useLoaderData();
+  const session = useLoaderData() ?? {};
   const [filtering, setFiltering] = useState();
   const [playingPopup, setPlayingPopup] = useState();
   const [popups, setPopups] = useState(session.popups);
@@ -55,9 +57,7 @@ export default function Session() {
         oldArray.map((popup) => {
           if (popup._id === updatedPopup._id) {
             return {
-              ...popup,
-              content: updatedPopup.content,
-              fav: updatedPopup.fav,
+              ...updatedPopup,
             };
           }
           return popup;
@@ -80,7 +80,7 @@ export default function Session() {
       socket.off("addPopup");
       socket.off("popupStarted");
     };
-  }, [socket, session._id]);
+  }, [socket]);
 
   function removePopup(id) {
     setPopups((oldArray) => oldArray.filter((q) => q._id !== id));
@@ -102,7 +102,7 @@ export default function Session() {
 
   function handleShowPopup(popup) {
     if (!playingPopup || playingPopup._id !== popup._id)
-    socket.emit("showPopup", popup);
+      socket.emit("showPopup", popup);
     else socket.emit("hide");
   }
 
@@ -198,37 +198,52 @@ export default function Session() {
                   shouldFilter={filtering}
                   filterOperation={() => !popup.fav}
                   highlight={popup.fav}
+                  disabled={currentPopup == popup}
                   selected={
                     playingPopup ? popup._id === playingPopup._id : false
                   }
                   handleClick={() => handleShowPopup(popup)}
-                > 
-                  {(popup == currentPopup)?(
-                  <EditPopupForm popup={currentPopup} onCancelClick={handleCancel} sessionId={session._id}/>
-                  ):(<>
-                  {popup.content}
-                  <BigListActions>
-                    <BigListActionButton
+                >
+                  {currentPopup == popup ? (
+                    <PopupForm
+                      popup={currentPopup}
+                      onCancel={handleCancel}
+                      sessionId={session._id}
+                    />
+                  ) : (
+                    <>
+                      {popup.title && (
+                        <>
+                          <i className="fa-solid fa-user"></i>
+                          <strong>{` ${popup.title}: `}</strong>
+                        </>
+                      )}
+
+                      {popup.content}
+                      <BigListActions>
+                        <BigListActionButton
                           title="Add to favorites"
-                      icon="fa-solid fa-star"
-                      onClick={() => handleFavPopup(popup)}
-                    />
-                    <BigListActionButton
+                          icon="fa-solid fa-star"
+                          onClick={() => handleFavPopup(popup)}
+                        />
+                        <BigListActionButton
                           title="Edit popup"
-                      icon="fa-solid fa-edit"
-                      onClick={() => handleEditPopup(popup)}
-                    />
-                    <BigListActionButton
+                          icon="fa-solid fa-edit"
+                          onClick={() => handleEditPopup(popup)}
+                        />
+                        {scheduledSession._id != session._id && (
+                          <BigListActionButton
+                            title={`Export to session "${scheduledSession.title}"`}
+                            icon="fa-solid fa-file-export"
+                            onClick={() => handleExportPopup(popup)}
+                          />
+                        )}
+                        <BigListActionButton
                           title="Delete popup"
-                      icon="fa-solid fa-trash"
-                      onClick={() => handleDelPopup(popup)}
-                    />
-                    <BigListActionButton
-                          title={`Export to session "${scheduledSession.title}"`}
-                      icon="fa-solid fa-file-export"
-                      onClick={() => handleExportPopup(popup)}
-                    />
-                  </BigListActions>
+                          icon="fa-solid fa-trash"
+                          onClick={() => handleDelPopup(popup)}
+                        />
+                      </BigListActions>
                     </>
                   )}
                 </BigListItem>

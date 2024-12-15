@@ -16,6 +16,10 @@
 .biglist .biglistItem:hover .actions {
   display: flex;
 }
+.biglist .actions button:hover{
+  opacity: .6;
+  color: rgb(18 164 211);
+}
 .biglist .actions {
   display: none;
   gap: 10px;
@@ -61,6 +65,7 @@
 }
 
 .biglist .biglistItem:hover .content {
+  box-sizing: border-box;
   cursor: pointer;
   background-color: rgb(255, 214, 230);
 }

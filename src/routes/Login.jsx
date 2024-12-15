@@ -1,9 +1,9 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import Page from "../components/Page";
-import "./Login.css";
 import "react-toastify/dist/ReactToastify.css";
+import Page from "../components/Page";
 import { useAuth } from "../hooks/useAuth";
+import "./Login.css";
 
 export default function Login() {
   const { user } = useAuth();

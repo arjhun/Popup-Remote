@@ -5,6 +5,7 @@ export default function BigListItem(props) {
   const {
     id,
     index,
+    disabled,
     shouldFilter,
     filterOperation,
     selected,
@@ -26,9 +27,7 @@ export default function BigListItem(props) {
         >
           <div
             className={`content ${highlight ? "highlight " : ""}`}
-            onClick={() => {
-              handleClick();
-            }}
+            onClick={disabled ? null : handleClick}
           >
             {children}
           </div>
