@@ -1,11 +1,10 @@
+import axios from "axios";
 import React, { useRef, useState } from "react";
 import { Form, Link } from "react-router-dom";
-import RemoteConfig from "../config/Config";
-import "./Login.css";
-import { useAuth } from "../hooks/useAuth";
-import { useSocket } from "../hooks/useSocket";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
+import RemoteConfig from "../config/Config";
+import { useAuth } from "../hooks/useAuth.js";
+import "./Login.css";
 
 export default function LoginForm() {
   const username = useRef();
@@ -27,7 +26,7 @@ export default function LoginForm() {
       .catch((err) => {
         switch (err.response.status) {
           case 401:
-            setError("Wrong username or password!");
+            setError("Login failed!");
             break;
           case 429:
             setError("Please try again later!");
@@ -59,7 +58,6 @@ export default function LoginForm() {
           title={RemoteConfig.PASSWORD_MESSAGE}
           required
         ></input>
-        {/* <LoadingButton doAction={handleSubmit}>Login</LoadingButton> */}
         <button type="submit">Submit</button>
         {error && <div className="error">{error}</div>}
       </Form>

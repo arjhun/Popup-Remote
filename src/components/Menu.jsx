@@ -28,9 +28,10 @@ export default function Menu() {
   }, []);
 
   function prompt(e) {
-    e.preventDefault();
     if (confirm("Are you sure you want to logout?")) {
-      logout();
+      return;
+    } else {
+      e.preventDefault();
     }
   }
 
@@ -87,7 +88,7 @@ export default function Menu() {
                 </a>
               </li>
               <li>
-                <Link onClick={(e) => prompt(e)} to={`/logout`}>
+                <Link onClick={(e) => prompt(e)} to={"/logout"}>
                   <i className="fa-solid fa-sign-out"></i> logout
                 </Link>
               </li>

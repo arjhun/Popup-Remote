@@ -6,7 +6,6 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import App from "./App";
-import Logout from "./components/Logout";
 import "./index.css";
 import {
   AccountVerification,
@@ -17,6 +16,7 @@ import ErrorPage from "./routes/ErrorPage";
 import Home from "./routes/Home";
 import Login from "./routes/Login";
 import LoginForm from "./routes/LoginForm";
+import Logout from "./routes/Logout";
 import Profile, {
   action as editProfileAction,
   loader as profileLoader,

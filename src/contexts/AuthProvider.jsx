@@ -1,13 +1,12 @@
-import React, { useEffect } from "react";
-import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { useLocalStorage } from "../hooks/useLocalStorage";
 import axios from "axios";
+import React, { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import RemoteConfig from "../config/Config";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 
 axios.defaults.baseURL = RemoteConfig.SERVER_URL;
 
-const apiAxios = axios.create();
+const refreshAxios = axios.create();
 
 axios.interceptors.request.use((config) => {
   const user = getUser();
@@ -20,17 +19,12 @@ axios.interceptors.request.use((config) => {
 
 async function refreshAccessToken() {
   let newTokens = null;
-  try {
-    const user = getUser();
-    if (user?.refreshToken) {
-      const response = await apiAxios.post("/refresh", {
-        refreshToken: user.refreshToken,
-      });
-      newTokens = response.data;
-    }
-  } catch (err) {
-    console.error(err);
-    throw err;
+  const user = getUser();
+  if (user?.refreshToken) {
+    const response = await refreshAxios.post("/refresh", {
+      refreshToken: user.refreshToken,
+    });
+    newTokens = response.data;
   }
   return newTokens;
 }
@@ -40,7 +34,7 @@ axios.interceptors.response.use(
   (response) => response,
   (error) => {
     const originalRequest = error.config;
-    if (error.response.status === 401 && getUser() !== null) {
+    if (error.response?.status === 401 && getUser() !== null) {
       if (!originalRequest._retry) {
         originalRequest._retry = true;
         return refreshAccessToken()
@@ -51,6 +45,7 @@ axios.interceptors.response.use(
           })
           .catch((err) => {
             setUser(null);
+            throw err;
           });
       }
     }
@@ -69,6 +64,10 @@ export function AuthProvider({ children }) {
     navigate("/dashboard");
   }
 
+  function updateUser(newUserData) {
+    setUser({ ...user, ...newUserData });
+  }
+
   function logout() {
     setUser(null);
     navigate("/login");
@@ -77,6 +76,7 @@ export function AuthProvider({ children }) {
   const value = useMemo(
     () => ({
       user,
+      updateUser,
       login,
       logout,
     }),
@@ -87,7 +87,12 @@ export function AuthProvider({ children }) {
 }
 
 const getUser = () => {
-  return JSON.parse(window.localStorage.getItem("user"));
+  try {
+    return JSON.parse(window.localStorage.getItem("user"));
+  } catch (error) {
+    window.localStorage.setItem("user", null);
+    return null;
+  }
 };
 
 const setUser = (value) => {

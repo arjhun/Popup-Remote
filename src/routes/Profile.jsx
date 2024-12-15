@@ -1,11 +1,12 @@
-import React, { useRef, useEffect } from "react";
-import { Form, useLoaderData, useActionData, redirect } from "react-router-dom";
-import "./Profile.css";
 import axios from "axios";
+import React, { useEffect } from "react";
+import { useActionData, useLoaderData } from "react-router-dom";
 import { toast } from "react-toastify";
-import RemoteConfig from "../config/Config";
 import Page from "../components/Page.jsx";
 import UserForm from "../components/UserForm";
+import RemoteConfig from "../config/Config";
+import { useAuth } from "../hooks/useAuth.js";
+import "./Profile.css";
 
 export async function loader({ params }) {
   let profile = await new Promise((resolve, reject) => {
@@ -34,7 +35,7 @@ export const action = async ({ params, request }) => {
       apiRequest = axios
         .put(RemoteConfig.SERVER_URL + `/users/${params.id}`, formData)
         .then((result) => {
-          return Promise.resolve();
+          return Promise.resolve({ user: result.data });
         })
         .catch((error) => {
           return Promise.reject(error);
@@ -58,8 +59,8 @@ export const action = async ({ params, request }) => {
       success: "User updated 👌",
       error: "Update failed 🤯",
     })
-    .then(() => {
-      return errors;
+    .then((user) => {
+      return user;
     })
     .catch((error) => {
       if (error.response.status === 401) {
@@ -71,8 +72,11 @@ export const action = async ({ params, request }) => {
 
 export default function Profile() {
   const user = useLoaderData();
-  const errors = useActionData();
-
+  const result = useActionData();
+  const { updateUser } = useAuth();
+  useEffect(() => {
+    if (result?.user) updateUser(result.user);
+  });
   return (
     <Page title="Profile">
       <h1>Profile</h1>

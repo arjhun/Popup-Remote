@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { Form } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
@@ -10,30 +10,23 @@ export default function UserForm(props) {
     disabled,
   } = props;
 
-  const { user } = useAuth();
-  const form = useRef();
-  const username = useRef();
-  const firstName = useRef();
-  const lastName = useRef();
-  const email = useRef();
-  const submit = useRef();
-  const password = useRef();
-  const newPassword = useRef();
+  const { user, updateUser } = useAuth();
+  const formRef = useRef();
+  const buttonRef = useRef();
 
-  useEffect(() => {
-    form.current.reset();
-  }, [data.username]);
+  const handleChange = () => {
+    buttonRef.current.disabled = "";
+  };
 
   return (
     <div className="userform">
-      <Form method="post" ref={form}>
+      <Form method="post" ref={formRef} onChange={handleChange}>
         <div className="userform-content">
           <label htmlFor="username">
             Username
             <input
               required
               minLength={4}
-              ref={username}
               type="text"
               name="username"
               defaultValue={data?.username}
@@ -44,7 +37,6 @@ export default function UserForm(props) {
               <label htmlFor="firstName">
                 First Name <small>(Optional)</small>
                 <input
-                  ref={firstName}
                   name="firstName"
                   type="text"
                   defaultValue={data.firstName}
@@ -55,7 +47,6 @@ export default function UserForm(props) {
               <label htmlFor="lastName">
                 Last Name <small>(Optional)</small>
                 <input
-                  ref={lastName}
                   name="lastName"
                   type="text"
                   defaultValue={data.lastName}
@@ -66,7 +57,6 @@ export default function UserForm(props) {
           <label htmlFor="email">
             Email
             <input
-              ref={email}
               name="email"
               type="email"
               title="Please enter a valid email adress!"
@@ -78,7 +68,6 @@ export default function UserForm(props) {
             <label htmlFor="oldPassword">
               Old password
               <input
-                ref={password}
                 name="oldPassword"
                 type="password"
                 title="Please enter a correct password!"
@@ -88,24 +77,23 @@ export default function UserForm(props) {
               ></input>
             </label>
           )}
-          <label htmlFor="newPassword">
+          {/* <label htmlFor="newPassword">
             Password
             <input
               required={passwordRequired}
-              ref={newPassword}
               name="password"
               type="password"
               pattern="^(?=.{8,20}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*"
               title="Minimum 12, maximum 20 characters containing lowercase, uppercase, at least one number and one special character(!£$%^&)"
             ></input>
-          </label>
+          </label> */}
         </div>
         <button
+          ref={buttonRef}
           type="submit"
           name="action"
           value="user"
-          ref={submit}
-          disabled={disabled}
+          disabled={"disabled"}
         >
           {button}
         </button>
