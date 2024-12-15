@@ -10,7 +10,7 @@ export default function Login() {
   return (
     <>
       {user !== null ? (
-        <Navigate to={"/dashboard"} replace="true" />
+        <Navigate to={"/dashboard"} replace={true} />
       ) : (
         <Page title={"Login"}>
           <div className="login-wrapper">
