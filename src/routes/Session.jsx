@@ -231,13 +231,14 @@ export default function Session() {
                           icon="fa-solid fa-edit"
                           onClick={() => handleEditPopup(popup)}
                         />
-                        {scheduledSession._id != session._id && (
-                          <BigListActionButton
-                            title={`Export to session "${scheduledSession.title}"`}
-                            icon="fa-solid fa-file-export"
-                            onClick={() => handleExportPopup(popup)}
-                          />
-                        )}
+                        {scheduledSession?._id &&
+                          scheduledSession._id != session._id && (
+                            <BigListActionButton
+                              title={`Export to session "${scheduledSession.title}"`}
+                              icon="fa-solid fa-file-export"
+                              onClick={() => handleExportPopup(popup)}
+                            />
+                          )}
                         <BigListActionButton
                           title="Delete popup"
                           icon="fa-solid fa-trash"

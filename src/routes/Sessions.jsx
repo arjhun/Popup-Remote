@@ -35,7 +35,8 @@ export default function Sessions() {
   const newSessionRef = useRef(null);
   const [currentSession, setCurrentSession] = useState();
   const [filtering, setFiltering] = useState(false);
-  const { updateScheduledSession } = useScheduledSession();
+  const { scheduledSession, updateScheduledSession, clearSession } =
+    useScheduledSession();
 
   function handleDelSession(session) {
     if (
@@ -45,6 +46,7 @@ export default function Sessions() {
     axios
       .delete("/sessions/" + session._id)
       .then(() => {
+        if (session._id === scheduledSession._id) clearSession();
         setSessionList((oldArray) =>
           oldArray.filter((s) => s._id !== session._id)
         );
