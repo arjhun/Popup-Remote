@@ -5,7 +5,7 @@ import "./ErrorPage.css";
 export default function ErrorPage() {
   const error = useRouteError();
   const navigate = useNavigate();
-  console.log(error);
+
   if (error.status === 401) return <Navigate to="/login" />;
   return (
     <Page title={"Error!"}>
