@@ -7,13 +7,13 @@ export async function loader({ request }) {
   const url = new URL(request.url);
   const token = url.searchParams.get("token");
   const tokenId = url.searchParams.get("tokenId");
-  if (!token || !tokenId) throw new Error("No token provided" + tokenId);
+  if (!token || !tokenId) throw new Error("No valid token provided");
   let sessions = await new Promise((resolve, reject) => {
     axios
       .request({
         method: "PUT",
         url: `/verify-account`,
-        data: { token: 1, tokenId: "a123" },
+        data: { token: `${token}`, tokenId: `${tokenId}` },
       })
       .then((response) => {
         resolve(response.data);
@@ -26,7 +26,6 @@ export async function loader({ request }) {
 }
 export const AccountVerification = () => {
   const loaderData = useLoaderData();
-  if (!loaderData) return "hi";
 
   return (
     <Page className="verify-box" title={"Account is succesfully verified!"}>
