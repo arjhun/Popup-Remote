@@ -11,34 +11,22 @@ export default function PopupForm({ sessionId, popup, onCancel = () => {} }) {
     titleRef.current.value = "";
   }
 
-  function handlePopup() {
+  function handleAddPopup() {
+    const shouldUpdate = popup !== undefined;
     const popupContent = contentRef.current.value;
-    if (!popup) {
-      if (!popupContent) return;
-      socket.emit(
-        "addPopup",
-        sessionId,
-        { content: popupContent },
-        (success) => {
-          if (success) {
-            resetInput();
-          }
+
+    if (!popupContent) return;
+
+    socket.emit(
+      shouldUpdate ? "updatePopup" : "addPopup",
+      sessionId,
+      { ...popup, content: popupContent, title: titleRef.current?.value ?? "" },
+      (success) => {
+        if (success) {
+          if (!shouldUpdate) resetInput();
         }
-      );
-    } else {
-      const popupContent = contentRef.current.value;
-      if (!popupContent) return;
-      socket.emit(
-        "updatePopup",
-        sessionId,
-        { ...popup, content: popupContent, title: titleRef.current.value },
-        (succes) => {
-          if (succes) {
-            resetInput();
-          }
-        }
-      );
-    }
+      }
+    );
   }
 
   function handleCancel() {
@@ -57,7 +45,11 @@ export default function PopupForm({ sessionId, popup, onCancel = () => {} }) {
         defaultValue={popup?.content}
       />
       <br />
-      <button className="addButton" disabled={isSending} onClick={handlePopup}>
+      <button
+        className="addButton"
+        disabled={isSending}
+        onClick={handleAddPopup}
+      >
         {popup ? "Edit" : "Add"}
       </button>
       <button className="cancelButton" onClick={handleCancel}>
