@@ -67,7 +67,7 @@ export default function users() {
           </thead>
           <tbody>
             {users.map((user) => {
-              if (user._id === currentUser._id) return;
+              if (user._id === currentUser.id) return;
               return (
                 <tr key={user._id}>
                   <td>{user.username}</td>
@@ -92,7 +92,7 @@ export default function users() {
                       <Link to={`/dashboard/users/${user._id}/edit`}>
                         <i className="fa-solid fa-edit"></i>
                       </Link>
-                      <span class="btn link">
+                      <span className="btn link">
                         <i
                           onClick={(e) => handleDelete(e, user._id)}
                           className="fa-solid fa-trash"

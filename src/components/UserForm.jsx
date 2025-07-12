@@ -77,7 +77,7 @@ export default function UserForm(props) {
               ></input>
             </label>
           )}
-          {/* <label htmlFor="newPassword">
+          <label htmlFor="newPassword">
             Password
             <input
               required={passwordRequired}
@@ -86,7 +86,7 @@ export default function UserForm(props) {
               pattern="^(?=.{8,20}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*"
               title="Minimum 12, maximum 20 characters containing lowercase, uppercase, at least one number and one special character(!£$%^&)"
             ></input>
-          </label> */}
+          </label>
         </div>
         <button
           ref={buttonRef}
