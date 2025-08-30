@@ -220,6 +220,15 @@ export default function Session() {
                       )}
 
                       {popup.content}
+                      {popup.note && (
+                        <div className="note">
+                          <b>
+                            <i className="fa-solid fa-note-sticky"></i>
+                          </b>
+                          <span className="note-content">{popup.note}</span>
+                        </div>
+                      )}
+
                       <BigListActions>
                         <BigListActionButton
                           title="Add to favorites"

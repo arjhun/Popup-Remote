@@ -5,10 +5,12 @@ export default function PopupForm({ sessionId, popup, onCancel = () => {} }) {
   const [isSending, setIsSending] = useState(false);
   const contentRef = useRef();
   const titleRef = useRef();
+  const noteRef = useRef();
 
   function resetInput() {
     contentRef.current.value = "";
     titleRef.current.value = "";
+    noteRef.current.value = "";
   }
 
   function handleAddPopup() {
@@ -20,7 +22,12 @@ export default function PopupForm({ sessionId, popup, onCancel = () => {} }) {
     socket.emit(
       shouldUpdate ? "updatePopup" : "addPopup",
       sessionId,
-      { ...popup, content: popupContent, title: titleRef.current?.value ?? "" },
+      {
+        ...popup,
+        content: popupContent,
+        title: titleRef.current?.value ?? "",
+        note: noteRef.current?.value,
+      },
       (success) => {
         if (success) {
           if (!shouldUpdate) resetInput();
@@ -44,6 +51,7 @@ export default function PopupForm({ sessionId, popup, onCancel = () => {} }) {
         rows="10"
         defaultValue={popup?.content}
       />
+      <input placeholder="Note" ref={noteRef} defaultValue={popup?.note} />
       <br />
       <button
         className="addButton"
