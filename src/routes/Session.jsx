@@ -225,7 +225,7 @@ export default function Session() {
                           <b>
                             <i className="fa-solid fa-note-sticky"></i>
                           </b>
-                          <span className="note-content">{popup.note}</span>
+                          <span className={`note-content`}>{popup.note}</span>
                         </div>
                       )}
 
